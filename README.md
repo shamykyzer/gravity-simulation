@@ -5,7 +5,7 @@ This project is a continuation of fluid simulation concepts, extended to simulat
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Building the Project](#Build)
+- [Build](#Build)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
@@ -18,7 +18,7 @@ This project builds on the principles of fluid simulation by focusing on gravita
 
 The project uses Newton's law of universal gravitation, where the force between two particles is inversely proportional to the square of the distance between them. The resulting simulation demonstrates complex and dynamic behavior as particles interact in real time.
 
-## Building the Project
+## Build
 
 To set up and compile the project on your local machine, follow these steps:
 
