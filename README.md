@@ -5,12 +5,12 @@ This project is a continuation of fluid simulation concepts, extended to simulat
 ## Table of Contents
 
 - [Introduction](#introduction)
-- [Build](#Build)
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Code Structure](#code-structure)
 - [Acknowledgments](#acknowledgments)
+- [License](#license)
 
 ## Introduction
 
@@ -53,41 +53,4 @@ This command will compile the source files and produce an executable named `grav
 ## Installation
 
 To build and run the simulation, ensure you have the necessary dependencies installed:
-
-## Dependencies
-
-- OpenGL
-- GLEW
-- GLFW
-
-On Ubuntu, you can install these with:
-
-```bash
-sudo apt-get update
-sudo apt-get install build-essential libgl1-mesa-dev libglew-dev libglfw3-dev
-```
-
 ##Usage
-
-Run the compiled executable:
-
-```bash
-./gravity_simulation
-```
-You should see a window displaying particles interacting under gravitational forces.
-
-##Code Structure
-
-- include/particle.h: Defines the Particle structure and function declarations.
-- src/particle.c: Implements particle initialization and gravitational force calculations.
-- src/main.c: Sets up the OpenGL context and runs the simulation loop.
-- Makefile: Used to compile the project and manage dependencies.
-
-##Acknowledgments
-
-This project was inspired by [Brendan Galea's YouTube video](https://www.youtube.com/watch?v=GjbcvqEOIuE&ab_channel=BrendanGalea) on gravitational systems. Special thanks to Brendan Galea for sharing his insights and sparking new ideas. 
-
-##License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
