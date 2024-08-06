@@ -39,10 +39,10 @@ To build and run the simulation, ensure you have the necessary dependencies inst
 
 On Ubuntu, you can install these with:
 
-\`\`\`bash
+```bash
 sudo apt-get update
 sudo apt-get install build-essential libgl1-mesa-dev libglew-dev libglfw3-dev
-\`\`\`
+```
 
 ## Build
 
@@ -50,29 +50,29 @@ To set up and compile the project on your local machine, follow these steps:
 
 1. **Clone the Repository**: Start by cloning the project repository from GitHub. This will create a local copy of the code on your machine.
 
-   \`\`\`bash
+   ```bash
    git clone https://github.com/shamykyzer/gravity-simulation.git
-   \`\`\`
+   ```
 
 2. **Navigate to the project directory**:
 
-   \`\`\`bash
+   ```bash
    cd gravity-simulation
-   \`\`\`
+   ```
 
 3. **Compile the project using the provided \`Makefile\`**:
 
-   \`\`\`bash
+   ```bash
    make
-   \`\`\`
+   ```
 
    This command will compile the source files and produce an executable named \`gravity_simulation\` in the root directory.
 
 4. **Run the executable to start the simulation**:
 
-   \`\`\`bash
+   ```bash
    ./gravity_simulation
-   \`\`\`
+   ```
 
 ## Usage
 
@@ -80,9 +80,9 @@ To run the simulation:
 
 1. Execute the compiled binary:
 
-   \`\`\`bash
+   ```bash
    ./gravity_simulation
-   \`\`\`
+   ```
 
 2. A window will open displaying particles interacting under gravitational forces. The particles are initially placed randomly within the simulation area and will attract each other according to Newton's law of universal gravitation.
 
