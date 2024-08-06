@@ -8,10 +8,10 @@ typedef struct {
     float mass;     // Mass of the particle
 } Particle;
 
-// Function to initialize particles with random positions and velocities
+// Function to initialize particles
 void initParticles(Particle* particles, int numParticles);
 
-// Function to update particle positions and velocities based on gravitational interactions
-void updateParticles(Particle* particles, int numParticles, float speedFactor, int mousePressed, double mouseX, double mouseY);
+// Function to update particle positions and velocities using the quadtree
+void updateParticles(Particle* particles, int numParticles);
 
 #endif

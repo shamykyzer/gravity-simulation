@@ -4,32 +4,30 @@ CC = gcc
 # Compiler flags
 CFLAGS = -Wall -g -Iinclude
 
+# Directories
+SRCDIR = src
+OBJDIR = obj
+BINDIR = .
+
+# Source and object files
+SOURCES = $(wildcard $(SRCDIR)/*.c)
+OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
+
+# Executable
+EXECUTABLE = gravity_simulation
+
 # Libraries
 LIBS = -lGL -lGLEW -lglfw -lm
 
-# Directories
-SRC_DIR = src
-OBJ_DIR = obj
+# Targets
+all: $(EXECUTABLE)
 
-# Source files
-SRC = $(wildcard $(SRC_DIR)/*.c)
+$(EXECUTABLE): $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(BINDIR)/$(EXECUTABLE) $(OBJECTS) $(LIBS)
 
-# Object files
-OBJ = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRC))
-
-# Executable
-EXEC = gravity_simulation
-
-# Default target
-all: $(EXEC)
-
-$(EXEC): $(OBJ)
-	@mkdir -p $(OBJ_DIR)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
-
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@mkdir -p $(OBJ_DIR)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -rf $(OBJ_DIR) $(EXEC)
+	rm -rf $(OBJDIR) $(BINDIR)/$(EXECUTABLE)
