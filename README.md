@@ -54,7 +54,7 @@ This command will compile the source files and produce an executable named `grav
 
 To build and run the simulation, ensure you have the necessary dependencies installed:
 
-### Dependencies
+## Dependencies
 
 - OpenGL
 - GLEW
@@ -67,7 +67,7 @@ sudo apt-get update
 sudo apt-get install build-essential libgl1-mesa-dev libglew-dev libglfw3-dev
 ```
 
-###Usage
+##Usage
 
 Run the compiled executable:
 
@@ -76,18 +76,18 @@ Run the compiled executable:
 ```
 You should see a window displaying particles interacting under gravitational forces.
 
-###Code Structure
+##Code Structure
 
 - include/particle.h: Defines the Particle structure and function declarations.
 - src/particle.c: Implements particle initialization and gravitational force calculations.
 - src/main.c: Sets up the OpenGL context and runs the simulation loop.
 - Makefile: Used to compile the project and manage dependencies.
 
-###Acknowledgments
+##Acknowledgments
 
 This project was inspired by [Brendan Galea's YouTube video](https://www.youtube.com/watch?v=GjbcvqEOIuE&ab_channel=BrendanGalea) on gravitational systems. Special thanks to Brendan Galea for sharing his insights and sparking new ideas. 
 
-###License
+##License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
