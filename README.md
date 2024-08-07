@@ -1,4 +1,3 @@
-
 # Gravitational Particle Simulation
 
 This project is a continuation of fluid simulation concepts, extended to simulate gravitational interactions between particles. The simulation calculates gravitational forces between particles and visualizes their dynamic interactions in a 2D space using OpenGL and GLFW.
@@ -109,5 +108,4 @@ This project was inspired by [Brendan Galea's YouTube video](https://www.youtube
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-"""
 
