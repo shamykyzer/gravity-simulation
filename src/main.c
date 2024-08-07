@@ -7,10 +7,10 @@
 #include <time.h>
 #include <string.h> // For memcpy
 
-const int window_width = 900;
+const int window_width = 800;
 const int window_height = 600;
-const int MAX_PARTICLES = 8000;
-const float MAX_VELOCITY = 1e1; // Cap the maximum velocity
+const int MAX_PARTICLES = 10000;
+const float MAX_VELOCITY = 1e1f; // Cap the maximum velocity
 const float TIME_STEP = 1;   // Fixed time step
 
 void drawInterpolatedParticles(Particle* particles, Particle* prevParticles, int numParticles, float alpha) {
@@ -22,6 +22,21 @@ void drawInterpolatedParticles(Particle* particles, Particle* prevParticles, int
         glVertex2f(interpolatedX, interpolatedY);
     }
     glEnd();
+}
+
+void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
+    // Convert mouse coordinates to OpenGL coordinates
+    float gl_x = (xpos / window_width) * 2.0f - 1.0f;
+    float gl_y = 1.0f - (ypos / window_height) * 2.0f;
+
+    // Update particle positions if the left mouse button is pressed
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        Particle* particles = (Particle*)glfwGetWindowUserPointer(window);
+        for (int i = 0; i < MAX_PARTICLES; i++) {
+            particles[i].x = gl_x;
+            particles[i].y = gl_y;
+        }
+    }
 }
 
 int main() {
@@ -54,6 +69,9 @@ int main() {
     Particle particles[MAX_PARTICLES];
     Particle prevParticles[MAX_PARTICLES];
     initParticles(particles, MAX_PARTICLES);
+
+    glfwSetCursorPosCallback(window, cursorPositionCallback);
+    glfwSetWindowUserPointer(window, particles);
 
     double previousTime = glfwGetTime();
     double accumulator = 0.0;
