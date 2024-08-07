@@ -1,6 +1,7 @@
 #include "particle.h"
 #include <stdlib.h>
-#include <math.h> // Add this line
+#include <math.h>
+#define MAX_VELOCITY 10.0f
 
 void initParticles(Particle* particles, int numParticles) {
     for (int i = 0; i < numParticles; i++) {
@@ -17,8 +18,8 @@ void initParticles(Particle* particles, int numParticles) {
 
 void updateParticles(Particle* particles, int numParticles, float dt) {
     for (int i = 0; i < numParticles; i++) {
-        particles[i].vx = fminf(fmaxf(particles[i].vx, -1e3f), 1e3f);
-        particles[i].vy = fminf(fmaxf(particles[i].vy, -1e3f), 1e3f);
+        particles[i].vx = fminf(fmaxf(particles[i].vx, -MAX_VELOCITY), MAX_VELOCITY);
+        particles[i].vy = fminf(fmaxf(particles[i].vy, -MAX_VELOCITY), MAX_VELOCITY);
 
         particles[i].x += particles[i].vx * dt;
         particles[i].y += particles[i].vy * dt;
