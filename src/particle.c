@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-#include <stdio.h> // For debug print statements
+#include <stdio.h>
 
 // Function to initialize particles with random positions and velocities
 void initParticles(Particle* particles, int numParticles) {

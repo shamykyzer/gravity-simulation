@@ -6,12 +6,18 @@
 
 #define MAX_PARTICLES 3000
 
-Particle particles[MAX_PARTICLES];
-
 int main(int argc, char** argv) {
+    // Declare a pointer for particles
+    Particle* particles = (Particle*)malloc(MAX_PARTICLES * sizeof(Particle));
+    if (!particles) {
+        fprintf(stderr, "Failed to allocate memory for particles\n");
+        return -1;
+    }
+
     // Initialize GLFW
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
+        free(particles); // Free the allocated memory before returning
         return -1;
     }
 
@@ -20,6 +26,7 @@ int main(int argc, char** argv) {
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
         glfwTerminate();
+        free(particles); // Free the allocated memory before returning
         return -1;
     }
 
@@ -30,6 +37,9 @@ int main(int argc, char** argv) {
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
         fprintf(stderr, "Failed to initialize GLEW\n");
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        free(particles); // Free the allocated memory before returning
         return -1;
     }
 
@@ -58,6 +68,8 @@ int main(int argc, char** argv) {
     }
 
     // Clean up resources
+    free(particles);
+    glfwDestroyWindow(window); // Properly destroy the window before termination
     glfwTerminate();
     return 0;
 }

@@ -1,6 +1,7 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
+// Define the particle structure
 typedef struct {
     float x, y;     // Position
     float vx, vy;   // Velocity
@@ -11,7 +12,7 @@ typedef struct {
 // Function to initialize particles
 void initParticles(Particle* particles, int numParticles);
 
-// Function to update particle positions and velocities using the quadtree
+// Correct declaration for updating particles
 void updateParticles(Particle* particles, int numParticles);
 
-#endif
+#endif // PARTICLE_H

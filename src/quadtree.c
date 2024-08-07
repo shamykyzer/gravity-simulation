@@ -8,7 +8,7 @@ QuadNode* createNode(float minX, float minY, float maxX, float maxY) {
     QuadNode* node = (QuadNode*)malloc(sizeof(QuadNode));
     if (!node) {
         fprintf(stderr, "Failed to allocate memory for quadtree node\n");
-        exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE); // Consider handling this more gracefully
     }
     node->mass = 0.0f;
     node->centerX = 0.0f;
@@ -45,7 +45,7 @@ void insertParticle(QuadNode* node, Particle* p) {
         node->se = createNode(midX, midY, node->maxX, node->maxY);
 
         if (node->particle) {
-            insertParticle(node, node->particle);
+            insertParticle(node, node->particle); // Redistribute existing particle
             node->particle = NULL;
         }
     }
@@ -109,5 +109,5 @@ void freeQuadtree(QuadNode* node) {
     freeQuadtree(node->ne);
     freeQuadtree(node->sw);
     freeQuadtree(node->se);
-    free(node);
+    free(node); // Free the current node
 }

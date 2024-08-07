@@ -1,7 +1,7 @@
 #ifndef QUADTREE_H
 #define QUADTREE_H
 
-#include "particle.h"
+#include "particle.h" // Include particle definition
 
 // Define the quadtree node structure
 typedef struct QuadNode {
@@ -29,4 +29,4 @@ void computeForce(QuadNode* node, Particle* p, float theta, float G);
 // Function to free the quadtree
 void freeQuadtree(QuadNode* node);
 
-#endif
+#endif // QUADTREE_H
