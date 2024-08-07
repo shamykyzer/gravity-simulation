@@ -2,16 +2,13 @@
 #define PARTICLE_H
 
 typedef struct {
-    float x, y;     // Position
-    float vx, vy;   // Velocity
-    float r, g, b;  // Color components
-    float mass;     // Mass of the particle
+    float x, y;
+    float vx, vy;
+    float mass;
+    float r, g, b; // Color components
 } Particle;
 
-// Function to initialize particles
 void initParticles(Particle* particles, int numParticles);
+void updateParticles(Particle* particles, int numParticles, float dt);
 
-// Function to update particle positions and velocities using the quadtree
-void updateParticles(Particle* particles, int numParticles);
-
-#endif
+#endif // PARTICLE_H

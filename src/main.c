@@ -102,85 +102,79 @@ int main() {
                                "        vec2 dir = positions[i] - aPos;\n"
                                "        float distSquared = dot(dir, dir) + 0.01;\n"
                                "        float invDist = inversesqrt(distSquared);\n"
-                               "        force += G * aMass * masses[i] * dir * invDist * invDist * invDist;\n"
+                               "        float invDistCube = invDist * invDist * invDist;\n"
+                               "        force += G * masses[i] * aMass * invDistCube * dir;\n"
                                "    }\n"
                                "    vec2 newVel = aVel + deltaTime * force / aMass;\n"
                                "    vec2 newPos = aPos + deltaTime * newVel;\n"
-                               "    fragColor = aColor;\n"
                                "    gl_Position = vec4(newPos, 0.0, 1.0);\n"
-                               "}\n";
-
+                               "    fragColor = aColor;\n"
+                               "}";
     const char* fragmentSource = "#version 330 core\n"
                                  "in vec3 fragColor;\n"
                                  "out vec4 color;\n"
                                  "void main() {\n"
                                  "    color = vec4(fragColor, 1.0);\n"
-                                 "}\n";
+                                 "}";
 
     GLuint shaderProgram = createShaderProgram(vertexSource, fragmentSource);
-    glUseProgram(shaderProgram);
 
-    // Initialize particles
-    initParticles(particles, MAX_PARTICLES);
-
-    // Print particle data for debugging
-    for (int i = 0; i < MAX_PARTICLES; ++i) {
-        printf("Particle %d - Position: (%f, %f), Mass: %f\n", i, particles[i].x, particles[i].y, particles[i].mass);
-    }
-
-    // Vertex Array and Buffer setup
+    // Generate and bind VAO and VBO
     GLuint VAO, VBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Particle) * MAX_PARTICLES, particles, GL_DYNAMIC_DRAW);
-    checkGLError("Buffer Data");
 
-    // Position attribute
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(particles), particles, GL_DYNAMIC_DRAW);
+
+    // Vertex positions
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)0);
     glEnableVertexAttribArray(0);
-
-    // Velocity attribute
+    // Velocities
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
-    // Mass attribute
+    // Masses
     glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(4 * sizeof(float)));
     glEnableVertexAttribArray(2);
-
-    // Color attribute
+    // Colors
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(3);
-    checkGLError("Vertex Attrib Setup");
 
-    // Main rendering loop
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    // Main loop
+    float deltaTime = 0.01f;
+    float G = 1.0f;
+    initParticles(particles, MAX_PARTICLES);
+
     while (!glfwWindowShouldClose(window)) {
+        // Update particles
+        updateParticles(particles, MAX_PARTICLES, deltaTime);
+
+        // Render particles
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Update particles
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
 
-        // Update uniforms
-        glUniform1f(glGetUniformLocation(shaderProgram, "deltaTime"), 0.01f);
-        glUniform1f(glGetUniformLocation(shaderProgram, "G"), 0.0001f);
+        glUniform1f(glGetUniformLocation(shaderProgram, "deltaTime"), deltaTime);
+        glUniform1f(glGetUniformLocation(shaderProgram, "G"), G);
         glUniform1i(glGetUniformLocation(shaderProgram, "numParticles"), MAX_PARTICLES);
 
-        // Copy particle positions and masses to uniforms
+        // Update positions and masses
         for (int i = 0; i < MAX_PARTICLES; ++i) {
-            char uniformName[32];
-            snprintf(uniformName, sizeof(uniformName), "positions[%d]", i);
-            glUniform2f(glGetUniformLocation(shaderProgram, uniformName), particles[i].x, particles[i].y);
-
-            snprintf(uniformName, sizeof(uniformName), "masses[%d]", i);
-            glUniform1f(glGetUniformLocation(shaderProgram, uniformName), particles[i].mass);
+            glUniform2f(glGetUniformLocation(shaderProgram, "positions[i]"), particles[i].x, particles[i].y);
+            glUniform1f(glGetUniformLocation(shaderProgram, "masses[i]"), particles[i].mass);
         }
-        checkGLError("Uniform Setup");
+
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(particles), particles);
+        checkGLError("Buffer Setup");
 
         glDrawArrays(GL_POINTS, 0, MAX_PARTICLES);
-        checkGLError("Drawing");
 
         glfwSwapBuffers(window);
         glfwPollEvents();
