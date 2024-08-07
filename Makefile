@@ -1,33 +1,27 @@
-# Compiler
 CC = gcc
-
-# Compiler flags
 CFLAGS = -Wall -g -Iinclude
 
-# Directories
-SRCDIR = src
 OBJDIR = obj
-BINDIR = .
+SRCDIR = src
 
-# Source and object files
-SOURCES = $(wildcard $(SRCDIR)/*.c)
-OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
+OBJS = $(OBJDIR)/main.o $(OBJDIR)/particle.o $(OBJDIR)/quadtree.o
 
-# Executable
-EXECUTABLE = gravity_simulation
+all: gravity_simulation
 
-# Libraries
-LIBS = -lGL -lGLEW -lglfw -lm
-
-# Targets
-all: $(EXECUTABLE)
-
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(BINDIR)/$(EXECUTABLE) $(OBJECTS) $(LIBS)
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
+$(OBJDIR)/main.o: $(SRCDIR)/main.c include/particle.h
 	mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $(SRCDIR)/main.c -o $(OBJDIR)/main.o
+
+$(OBJDIR)/particle.o: $(SRCDIR)/particle.c include/particle.h include/quadtree.h
+	mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -c $(SRCDIR)/particle.c -o $(OBJDIR)/particle.o
+
+$(OBJDIR)/quadtree.o: $(SRCDIR)/quadtree.c include/quadtree.h
+	mkdir -p $(OBJDIR)
+	$(CC) $(CFLAGS) -c $(SRCDIR)/quadtree.c -o $(OBJDIR)/quadtree.o
+
+gravity_simulation: $(OBJS)
+	$(CC) $(CFLAGS) -o gravity_simulation $(OBJS) -lGL -lGLEW -lglfw -lm
 
 clean:
-	rm -rf $(OBJDIR) $(BINDIR)/$(EXECUTABLE)
+	rm -rf $(OBJDIR) gravity_simulation

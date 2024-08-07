@@ -1,75 +1,35 @@
 #include "particle.h"
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#define MAX_PARTICLES 3000
+int main() {
+    const int numParticles = 100;
+    const int numSteps = 1000; // Number of steps to simulate
+    Particle* particles = (Particle*)malloc(sizeof(Particle) * numParticles);
 
-int main(int argc, char** argv) {
-    // Declare a pointer for particles
-    Particle* particles = (Particle*)malloc(MAX_PARTICLES * sizeof(Particle));
     if (!particles) {
-        fprintf(stderr, "Failed to allocate memory for particles\n");
-        return -1;
-    }
-
-    // Initialize GLFW
-    if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        free(particles); // Free the allocated memory before returning
-        return -1;
-    }
-
-    // Create a GLFW window
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Gravitational Particle Simulation", NULL, NULL);
-    if (!window) {
-        fprintf(stderr, "Failed to create GLFW window\n");
-        glfwTerminate();
-        free(particles); // Free the allocated memory before returning
-        return -1;
-    }
-
-    // Make the window's context current
-    glfwMakeContextCurrent(window);
-
-    // Initialize GLEW
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        fprintf(stderr, "Failed to initialize GLEW\n");
-        glfwDestroyWindow(window);
-        glfwTerminate();
-        free(particles); // Free the allocated memory before returning
-        return -1;
+        fprintf(stderr, "Failed to allocate memory for particles.\n");
+        return EXIT_FAILURE;
     }
 
     // Initialize particles
-    initParticles(particles, MAX_PARTICLES);
+    printf("Initializing particles...\n");
+    initParticles(particles, numParticles);
 
-    // Main rendering loop
-    while (!glfwWindowShouldClose(window)) {
-        // Clear the screen
-        glClear(GL_COLOR_BUFFER_BIT);
+    // Simulation loop
+    printf("Starting simulation...\n");
+    for (int step = 0; step < numSteps; ++step) {
+        printf("Simulation step %d\n", step);
+        updateParticles(particles, numParticles);
 
-        // Update particles using the quadtree
-        updateParticles(particles, MAX_PARTICLES);
-
-        // Render particles
-        glBegin(GL_POINTS);
-        for (int i = 0; i < MAX_PARTICLES; ++i) {
-            glColor3f(particles[i].r, particles[i].g, particles[i].b);
-            glVertex2f(particles[i].x, particles[i].y);
+        // Print particle states for debugging
+        for (int i = 0; i < numParticles; ++i) {
+            printf("Particle %d: Position (%.2f, %.2f), Velocity (%.2f, %.2f)\n", 
+                   i, particles[i].x, particles[i].y, particles[i].vx, particles[i].vy);
         }
-        glEnd();
-
-        // Swap buffers and poll events
-        glfwSwapBuffers(window);
-        glfwPollEvents();
     }
 
-    // Clean up resources
+    printf("Simulation completed.\n");
     free(particles);
-    glfwDestroyWindow(window); // Properly destroy the window before termination
-    glfwTerminate();
     return 0;
 }
