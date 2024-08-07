@@ -2,14 +2,12 @@
 #define PARTICLE_H
 
 typedef struct {
-    float x, y;    // Position
-    float vx, vy;  // Velocity
-    float mass;    // Mass
-    float r, g, b; // Color components
+    float x, y;
+    float vx, vy;
+    float mass;
 } Particle;
 
-// Function declarations
 void initParticles(Particle* particles, int numParticles);
-void updateParticles(Particle* particles, int numParticles);
+void updateParticles(Particle* particles, int numParticles, float dt);
 
-#endif // PARTICLE_H
+#endif
