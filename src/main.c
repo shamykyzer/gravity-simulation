@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define MAX_PARTICLES 1000
+#define MAX_PARTICLES 3000
 
 Particle particles[MAX_PARTICLES];
 
