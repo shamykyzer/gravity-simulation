@@ -4,21 +4,18 @@
 #include "particle.h"
 
 typedef struct QuadNode {
-    float mass;
-    float centerX, centerY;
     float minX, minY, maxX, maxY;
+    float centerX, centerY;
+    float mass;
+    struct QuadNode *nw, *ne, *sw, *se;
     Particle* particle;
-    struct QuadNode* nw;
-    struct QuadNode* ne;
-    struct QuadNode* sw;
-    struct QuadNode* se;
 } QuadNode;
 
 QuadNode* createNode(float minX, float minY, float maxX, float maxY);
+void subdivideNode(QuadNode* node);
+QuadNode* getQuadrant(QuadNode* node, Particle* p);
 void insertParticle(QuadNode* node, Particle* p);
 void computeForce(QuadNode* node, Particle* p, float theta, float G);
 void freeQuadtree(QuadNode* node);
-void subdivideNode(QuadNode* node);
-QuadNode* getQuadrant(QuadNode* node, Particle* p);
 
-#endif // QUADTREE_H
+#endif

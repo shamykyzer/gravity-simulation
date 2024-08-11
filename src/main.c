@@ -1,42 +1,23 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "particle.h"
-#include "quadtree.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <string.h> // For memcpy
 
 const int window_width = 800;
 const int window_height = 600;
-const int MAX_PARTICLES = 10000;
-const float MAX_VELOCITY = 1e1f; // Cap the maximum velocity
-const float TIME_STEP = 1;   // Fixed time step
+const int MAX_PARTICLES = 2000;
+const float TIME_STEP = 10.0 / 60.0f;
+const float G = 6.67430e-11f;
 
-void drawInterpolatedParticles(Particle* particles, Particle* prevParticles, int numParticles, float alpha) {
+void drawParticles(Particle* particles, int numParticles) {
     glBegin(GL_POINTS);
     for (int i = 0; i < numParticles; i++) {
         glColor3f(particles[i].r, particles[i].g, particles[i].b);
-        float interpolatedX = particles[i].x * alpha + prevParticles[i].x * (1.0f - alpha);
-        float interpolatedY = particles[i].y * alpha + prevParticles[i].y * (1.0f - alpha);
-        glVertex2f(interpolatedX, interpolatedY);
+        glVertex2f(particles[i].x, particles[i].y);
     }
     glEnd();
-}
-
-void cursorPositionCallback(GLFWwindow* window, double xpos, double ypos) {
-    // Convert mouse coordinates to OpenGL coordinates
-    float gl_x = (xpos / window_width) * 2.0f - 1.0f;
-    float gl_y = 1.0f - (ypos / window_height) * 2.0f;
-
-    // Update particle positions if the left mouse button is pressed
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-        Particle* particles = (Particle*)glfwGetWindowUserPointer(window);
-        for (int i = 0; i < MAX_PARTICLES; i++) {
-            particles[i].x = gl_x;
-            particles[i].y = gl_y;
-        }
-    }
 }
 
 int main() {
@@ -45,9 +26,9 @@ int main() {
         return -1;
     }
 
-    GLFWwindow* window = glfwCreateWindow(window_width, window_height, "Gravity Simulation", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(window_width, window_height, "Gravitational Particle Simulation", NULL, NULL);
     if (!window) {
-        fprintf(stderr, "Failed to open GLFW window\n");
+        fprintf(stderr, "Failed to create GLFW window\n");
         glfwTerminate();
         return -1;
     }
@@ -59,50 +40,20 @@ int main() {
         return -1;
     }
 
-    glViewport(0, 0, window_width, window_height);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
+    // Initialize particles
     Particle particles[MAX_PARTICLES];
-    Particle prevParticles[MAX_PARTICLES];
     initParticles(particles, MAX_PARTICLES);
 
-    glfwSetCursorPosCallback(window, cursorPositionCallback);
-    glfwSetWindowUserPointer(window, particles);
-
-    double previousTime = glfwGetTime();
-    double accumulator = 0.0;
-
     while (!glfwWindowShouldClose(window)) {
-        double currentTime = glfwGetTime();
-        double frameTime = currentTime - previousTime;
-        previousTime = currentTime;
-        accumulator += frameTime;
-
-        while (accumulator >= TIME_STEP) {
-            memcpy(prevParticles, particles, sizeof(Particle) * MAX_PARTICLES);
-
-            QuadNode* root = createNode(-1.0f, -1.0f, 1.0f, 1.0f);
-            for (int i = 0; i < MAX_PARTICLES; i++) {
-                insertParticle(root, &particles[i]);
-            }
-
-            for (int i = 0; i < MAX_PARTICLES; i++) {
-                computeForce(root, &particles[i], 0.5f, 1.0f);
-            }
-
-            updateParticles(particles, MAX_PARTICLES, TIME_STEP);
-            freeQuadtree(root);
-
-            accumulator -= TIME_STEP;
-        }
-
-        float alpha = accumulator / TIME_STEP;
         glClear(GL_COLOR_BUFFER_BIT);
-        drawInterpolatedParticles(particles, prevParticles, MAX_PARTICLES, alpha);
+
+        // Compute forces and update particles
+        computeForces(particles, MAX_PARTICLES, G);
+        updateParticles(particles, MAX_PARTICLES, TIME_STEP);
+
+        // Draw particles
+        drawParticles(particles, MAX_PARTICLES);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

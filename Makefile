@@ -1,33 +1,14 @@
-# Compiler
 CC = gcc
-
-# Compiler flags
 CFLAGS = -Wall -g -Iinclude
 
-# Directories
-SRCDIR = src
-OBJDIR = obj
-BINDIR = .
+SRC = src/main.o src/particle.o src/quadtree.o
+OBJ = $(SRC:.c=.o)
+TARGET = gravity_simulation
 
-# Source and object files
-SOURCES = $(wildcard $(SRCDIR)/*.c)
-OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
+all: $(TARGET)
 
-# Executable
-EXECUTABLE = gravity_simulation
-
-# Libraries
-LIBS = -lGL -lGLEW -lglfw -lm
-
-# Targets
-all: $(EXECUTABLE)
-
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(BINDIR)/$(EXECUTABLE) $(OBJECTS) $(LIBS)
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+$(TARGET): $(SRC)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) -lGL -lGLEW -lglfw -lm
 
 clean:
-	rm -rf $(OBJDIR) $(BINDIR)/$(EXECUTABLE)
+	rm -f $(OBJ) $(TARGET)
