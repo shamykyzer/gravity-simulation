@@ -1,6 +1,7 @@
-#include "particle_struct.h"  // Include the Particle struct definition
+#include "particle_struct.h"
 #include "particle.h"
 #include "quadtree.h"
+#include "constants.h"
 #include <math.h>
 #include <stdlib.h>
 #include <GL/glew.h>
@@ -131,20 +132,60 @@ void handleBoundaryCollisions(Particles* particles, int numParticles, float minX
     }
 }
 
-// Apply attraction force
 void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength) {
     for (int i = 0; i < numParticles; ++i) {
         float dx = centerX - particles->x[i];
         float dy = centerY - particles->y[i];
         float distSq = dx * dx + dy * dy + 1e-4f;  // Avoid division by zero
         float dist = sqrtf(distSq);
-        
-        // Compute the attraction force
+
+        // Compute the gravitational force
         float force = strength / distSq;
-        
+
+        // Calculate the components of the force
+        float forceX = (force * dx / dist);
+        float forceY = (force * dy / dist);
+
         // Apply the force to the particle's acceleration
-        particles->ax[i] += force * dx / dist;
-        particles->ay[i] += force * dy / dist;
+        particles->ax[i] += forceX;
+        particles->ay[i] += forceY;
+
+        // Ensure the velocity is updated correctly to create a stable orbit
+        particles->vx[i] += particles->ax[i];
+        particles->vy[i] += particles->ay[i];
+    }
+}
+
+// Apply repulsive force near the borders to make particles avoid them
+void applyBorderRepulsion(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY, float repulsionStrength, float thresholdDistance) {
+    for (int i = 0; i < numParticles; ++i) {
+        // Repulsion from the left border
+        if (particles->x[i] < minX + thresholdDistance) {
+            float distance = particles->x[i] - minX;
+            float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
+            particles->ax[i] += force;
+        }
+
+        // Repulsion from the right border
+        if (particles->x[i] > maxX - thresholdDistance) {
+            float distance = maxX - particles->x[i];
+            float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
+            particles->ax[i] -= force;
+        }
+
+        // Repulsion from the bottom border
+        if (particles->y[i] < minY + thresholdDistance) {
+            float distance = particles->y[i] - minY;
+            float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
+            particles->ay[i] += force;
+        }
+
+        // Repulsion from the top border
+        if (particles->y[i] > maxY - thresholdDistance) {
+            float distance = maxY - particles->y[i];
+            float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
+            particles->ay[i] -= force;
+        }
     }
 }
 
@@ -152,7 +193,40 @@ void applyAttraction(Particles* particles, int numParticles, float centerX, floa
 void drawParticles(Particles* particles, int numParticles) {
     glBegin(GL_POINTS);
     for (int i = 0; i < numParticles; i++) {
-        glColor3f(particles->r[i], particles->g[i], particles->b[i]);
+        // Calculate the speed of the particle
+        float speed = sqrtf(particles->vx[i] * particles->vx[i] + particles->vy[i] * particles->vy[i]);
+
+        // Normalize the speed to a value between 0 and 1 for color mapping
+        float normalizedSpeed = fminf(speed / 0.5f, 1.0f);  // Assuming 0.5f is the max speed
+
+        // Set color based on speed: 
+        // - Blue (0, 0, 1) for very slow particles
+        // - Cyan (0, 1, 1) for slow to moderate speed particles
+        // - Green (0, 1, 0) for moderate speed particles
+        // - Yellow (1, 1, 0) for fast particles
+        // - Red (1, 0, 0) for very fast particles
+
+        float r, g, b;
+
+        if (normalizedSpeed < 0.25f) {
+            r = 0.0f;
+            g = normalizedSpeed * 4.0f;
+            b = 1.0f;
+        } else if (normalizedSpeed < 0.5f) {
+            r = 0.0f;
+            g = 1.0f;
+            b = 1.0f - (normalizedSpeed - 0.25f) * 4.0f;
+        } else if (normalizedSpeed < 0.75f) {
+            r = (normalizedSpeed - 0.5f) * 4.0f;
+            g = 1.0f;
+            b = 0.0f;
+        } else {
+            r = 1.0f;
+            g = 1.0f - (normalizedSpeed - 0.75f) * 4.0f;
+            b = 0.0f;
+        }
+
+        glColor3f(r, g, b);  // Set the particle color based on speed
         glVertex2f(particles->x[i], particles->y[i]);
     }
     glEnd();
