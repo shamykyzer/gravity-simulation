@@ -2,16 +2,22 @@
 #define PARTICLE_H
 
 typedef struct {
-    float x, y;     // Position
-    float vx, vy;   // Velocity
-    float r, g, b;  // Color components
-    float mass;     // Mass of the particle
-} Particle;
+    float *x, *y;       // Positions
+    float *vx, *vy;     // Velocities
+    float *ax, *ay;     // Accelerations
+    float *mass;        // Masses
+    float *r, *g, *b;   // Colors
+    float *momentum_x, *momentum_y; // Momenta
+} Particles;
 
-// Function to initialize particles
-void initParticles(Particle* particles, int numParticles);
-
-// Function to update particle positions and velocities using the quadtree
-void updateParticles(Particle* particles, int numParticles);
+// Function prototypes for operations on the SoA structure
+void initParticles(Particles* particles, int numParticles);
+void computeForces(Particles* particles, int numParticles, float G);
+void updateParticles(Particles* particles, int numParticles, float dt);
+void handleBoundaryCollisions(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY);
+void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength);
+void drawParticles(Particles* particles, int numParticles);
+void freeParticles(Particles* particles);
+void applyBorderRepulsion(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY, float repulsionStrength, float thresholdDistance);
 
 #endif

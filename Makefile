@@ -1,33 +1,22 @@
-# Compiler
-CC = gcc
+OBJECTS = src/main.o src/particle.o src/quadtree.o src/shader_utils.o src/controls.o
 
-# Compiler flags
-CFLAGS = -Wall -g -Iinclude
+gravity_simulation: $(OBJECTS)
+	 gcc -o gravity_simulation $(OBJECTS) -lGL -lGLEW -lglfw -lm
 
-# Directories
-SRCDIR = src
-OBJDIR = obj
-BINDIR = .
+src/main.o: src/main.c include/particle.h include/shader_utils.h include/controls.h
+	 gcc -Wall -g -Iinclude -c -o src/main.o src/main.c
 
-# Source and object files
-SOURCES = $(wildcard $(SRCDIR)/*.c)
-OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
+src/particle.o: src/particle.c include/particle.h include/quadtree.h include/particle_struct.h
+	 gcc -Wall -g -Iinclude -c -o src/particle.o src/particle.c
 
-# Executable
-EXECUTABLE = gravity_simulation
+src/quadtree.o: src/quadtree.c include/quadtree.h include/particle_struct.h
+	 gcc -Wall -g -Iinclude -c -o src/quadtree.o src/quadtree.c
 
-# Libraries
-LIBS = -lGL -lGLEW -lglfw -lm
+src/shader_utils.o: src/shader_utils.c include/shader_utils.h
+	 gcc -Wall -g -Iinclude -c -o src/shader_utils.o src/shader_utils.c
 
-# Targets
-all: $(EXECUTABLE)
-
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) -o $(BINDIR)/$(EXECUTABLE) $(OBJECTS) $(LIBS)
-
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	mkdir -p $(OBJDIR)
-	$(CC) $(CFLAGS) -c $< -o $@
+src/controls.o: src/controls.c include/controls.h include/particle.h
+	 gcc -Wall -g -Iinclude -c -o src/controls.o src/controls.c
 
 clean:
-	rm -rf $(OBJDIR) $(BINDIR)/$(EXECUTABLE)
+	 rm -f src/*.o gravity_simulation
