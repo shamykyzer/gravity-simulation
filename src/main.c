@@ -6,10 +6,10 @@
 #include <stdio.h>
 #include <time.h>
 
-#define MAX_PARTICLES 2000
+#define MAX_PARTICLES 5000
 #define GRAVITY_CONST 0.00001f
 #define ATTRACTION_STRENGTH 0.05f
-#define PARTICLE_SIZE 10.0f
+#define PARTICLE_SIZE 100.0f
 
 Particle particles[MAX_PARTICLES];
 

@@ -1,8 +1,9 @@
 #include "particle.h"
+#include "quadtree.h"
 #include <math.h>
 #include <stdlib.h>
-#include <GL/glew.h>  // Add this for OpenGL functions
-#include <GLFW/glfw3.h>  // Add this for GLFW
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
 void initParticles(Particle* particles, int numParticles) {
     for (int i = 0; i < numParticles; ++i) {
@@ -20,22 +21,25 @@ void initParticles(Particle* particles, int numParticles) {
 }
 
 void computeForces(Particle* particles, int numParticles, float G) {
+    // Determine the bounds of the simulation
+    float minX = -1.0f, minY = -1.0f, maxX = 1.0f, maxY = 1.0f;
+
+    // Create the root node of the quadtree
+    QuadNode* root = createNode(minX, minY, maxX, maxY);
+
+    // Insert all particles into the quadtree
     for (int i = 0; i < numParticles; ++i) {
-        float fx = 0.0f;
-        float fy = 0.0f;
-        for (int j = 0; j < numParticles; ++j) {
-            if (i == j) continue;
-            float dx = particles[j].x - particles[i].x;
-            float dy = particles[j].y - particles[i].y;
-            float distSq = dx * dx + dy * dy + 1e-4f; // Avoid division by zero
-            float dist = sqrtf(distSq);
-            float force = (G * particles[i].mass * particles[j].mass) / distSq;
-            fx += force * dx / dist;
-            fy += force * dy / dist;
-        }
-        particles[i].ax = fx / particles[i].mass;
-        particles[i].ay = fy / particles[i].mass;
+        insertParticle(root, &particles[i]);
     }
+
+    // Compute forces using the quadtree
+    float theta = 0.5f;  // Barnes-Hut approximation threshold
+    for (int i = 0; i < numParticles; ++i) {
+        computeForce(root, &particles[i], theta, G);
+    }
+
+    // Free the quadtree memory
+    freeQuadtree(root);
 }
 
 void updateParticles(Particle* particles, int numParticles, float dt) {
