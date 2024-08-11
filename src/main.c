@@ -29,6 +29,13 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     }
 }
 
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (attract) {
+        centerX = (float)xpos / 400.0f - 1.0f;
+        centerY = 1.0f - (float)ypos / 300.0f;
+    }
+}
+
 void updateParticlesAndApplyAttraction(float dt) {
     computeForces(particles, MAX_PARTICLES, GRAVITY_CONST);
     if (attract) {
@@ -61,6 +68,7 @@ int main() {
     }
 
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_position_callback);
 
     const char* vertexSource = "#version 330 core\n"
                                "layout(location = 0) in vec2 aPos;\n"
