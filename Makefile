@@ -1,14 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -g -Iinclude
+LDFLAGS = -lGL -lGLEW -lglfw -lm
 
-SRC = src/main.o src/particle.o src/quadtree.o
-OBJ = $(SRC:.c=.o)
-TARGET = gravity_simulation
+SRCS = src/main.c src/particle.c src/quadtree.c src/shader_utils.c
+OBJS = $(SRCS:.c=.o)
 
-all: $(TARGET)
-
-$(TARGET): $(SRC)
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRC) -lGL -lGLEW -lglfw -lm
+gravity_simulation: $(OBJS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
 
 clean:
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(OBJS) gravity_simulation
