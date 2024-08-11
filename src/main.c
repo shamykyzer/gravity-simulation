@@ -8,11 +8,9 @@
 #include <stdio.h>
 #include <time.h>
 
-<<<<<<< HEAD
-#define MAX_PARTICLES 3000
-=======
+#define MAX_PARTICLES 7000  // Choose the value you prefer
+
 Particles particles;  // Use the SoA structure
->>>>>>> 5fd4092cae509f15e4a4ede64acb9465b5ad2621
 
 void updateParticlesAndApplyAttraction(float dt) {
     computeForces(&particles, MAX_PARTICLES, GRAVITY_CONST);
@@ -24,6 +22,7 @@ void updateParticlesAndApplyAttraction(float dt) {
     float thresholdDistance = 0.1f;   // Distance from the border where the repulsion starts
     applyBorderRepulsion(&particles, MAX_PARTICLES, -1.0f, 1.0f, -1.0f, 1.0f, repulsionStrength, thresholdDistance);
 }
+
 int main() {
     srand(time(NULL));
 
