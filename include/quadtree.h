@@ -1,7 +1,7 @@
 #ifndef QUADTREE_H
 #define QUADTREE_H
 
-#include "particle.h"
+#include "particle_struct.h"  // Include the Particle struct definition
 
 typedef struct QuadNode {
     float minX, minY, maxX, maxY;

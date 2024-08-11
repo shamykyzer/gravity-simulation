@@ -1,3 +1,4 @@
+#include "particle_struct.h"  // Include the Particle struct definition
 #include "particle.h"
 #include "quadtree.h"
 #include <math.h>
@@ -5,90 +6,136 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-void initParticles(Particle* particles, int numParticles) {
+// Initialize particles
+void initParticles(Particles* particles, int numParticles) {
+    particles->x = (float*)malloc(numParticles * sizeof(float));
+    particles->y = (float*)malloc(numParticles * sizeof(float));
+    particles->vx = (float*)malloc(numParticles * sizeof(float));
+    particles->vy = (float*)malloc(numParticles * sizeof(float));
+    particles->ax = (float*)malloc(numParticles * sizeof(float));
+    particles->ay = (float*)malloc(numParticles * sizeof(float));
+    particles->mass = (float*)malloc(numParticles * sizeof(float));
+    particles->r = (float*)malloc(numParticles * sizeof(float));
+    particles->g = (float*)malloc(numParticles * sizeof(float));
+    particles->b = (float*)malloc(numParticles * sizeof(float));
+    particles->momentum_x = (float*)malloc(numParticles * sizeof(float));
+    particles->momentum_y = (float*)malloc(numParticles * sizeof(float));
+
     for (int i = 0; i < numParticles; ++i) {
-        particles[i].x = (float)rand() / RAND_MAX * 2.0f - 1.0f;
-        particles[i].y = (float)rand() / RAND_MAX * 2.0f - 1.0f;
-        particles[i].vx = (float)rand() / RAND_MAX * 0.1f - 0.05f;
-        particles[i].vy = (float)rand() / RAND_MAX * 0.1f - 0.05f;
-        particles[i].mass = (float)rand() / RAND_MAX * 0.01f + 0.01f;
-        particles[i].momentum_x = particles[i].mass * particles[i].vx;
-        particles[i].momentum_y = particles[i].mass * particles[i].vy;
-        particles[i].r = (float)rand() / RAND_MAX;
-        particles[i].g = (float)rand() / RAND_MAX;
-        particles[i].b = (float)rand() / RAND_MAX;
+        particles->x[i] = (float)rand() / RAND_MAX * 2.0f - 1.0f;
+        particles->y[i] = (float)rand() / RAND_MAX * 2.0f - 1.0f;
+        particles->vx[i] = (float)rand() / RAND_MAX * 0.1f - 0.05f;
+        particles->vy[i] = (float)rand() / RAND_MAX * 0.1f - 0.05f;
+        particles->ax[i] = 0.0f;
+        particles->ay[i] = 0.0f;
+        particles->mass[i] = (float)rand() / RAND_MAX * 0.01f + 0.01f;
+        particles->momentum_x[i] = particles->mass[i] * particles->vx[i];
+        particles->momentum_y[i] = particles->mass[i] * particles->vy[i];
+        particles->r[i] = (float)rand() / RAND_MAX;
+        particles->g[i] = (float)rand() / RAND_MAX;
+        particles->b[i] = (float)rand() / RAND_MAX;
     }
 }
 
-void computeForces(Particle* particles, int numParticles, float G) {
-    // Determine the bounds of the simulation
+// Compute forces using quadtree
+void computeForces(Particles* particles, int numParticles, float G) {
     float minX = -1.0f, minY = -1.0f, maxX = 1.0f, maxY = 1.0f;
 
-    // Create the root node of the quadtree
     QuadNode* root = createNode(minX, minY, maxX, maxY);
 
-    // Insert all particles into the quadtree
     for (int i = 0; i < numParticles; ++i) {
-        insertParticle(root, &particles[i]);
+        Particle p = {
+            .x = particles->x[i],
+            .y = particles->y[i],
+            .vx = particles->vx[i],
+            .vy = particles->vy[i],
+            .ax = particles->ax[i],
+            .ay = particles->ay[i],
+            .mass = particles->mass[i],
+            .r = particles->r[i],
+            .g = particles->g[i],
+            .b = particles->b[i],
+            .momentum_x = particles->momentum_x[i],
+            .momentum_y = particles->momentum_y[i]
+        };
+        insertParticle(root, &p);
     }
 
-    // Compute forces using the quadtree
     float theta = 0.5f;  // Barnes-Hut approximation threshold
     for (int i = 0; i < numParticles; ++i) {
-        computeForce(root, &particles[i], theta, G);
+        Particle p = {
+            .x = particles->x[i],
+            .y = particles->y[i],
+            .vx = particles->vx[i],
+            .vy = particles->vy[i],
+            .ax = particles->ax[i],
+            .ay = particles->ay[i],
+            .mass = particles->mass[i],
+            .r = particles->r[i],
+            .g = particles->g[i],
+            .b = particles->b[i],
+            .momentum_x = particles->momentum_x[i],
+            .momentum_y = particles->momentum_y[i]
+        };
+        computeForce(root, &p, theta, G);
+
+        particles->vx[i] = p.vx;
+        particles->vy[i] = p.vy;
     }
 
-    // Free the quadtree memory
     freeQuadtree(root);
 }
 
-void updateParticles(Particle* particles, int numParticles, float dt) {
+// Update particle positions
+void updateParticles(Particles* particles, int numParticles, float dt) {
     const float maxVelocity = 0.5f;  // Increased maximum velocity
 
     for (int i = 0; i < numParticles; ++i) {
-        particles[i].vx += particles[i].ax * dt;
-        particles[i].vy += particles[i].ay * dt;
+        particles->vx[i] += particles->ax[i] * dt;
+        particles->vy[i] += particles->ay[i] * dt;
 
         // Clamp the velocity
-        float speed = sqrtf(particles[i].vx * particles[i].vx + particles[i].vy * particles[i].vy);
+        float speed = sqrtf(particles->vx[i] * particles->vx[i] + particles->vy[i] * particles->vy[i]);
         if (speed > maxVelocity) {
             float scale = maxVelocity / speed;
-            particles[i].vx *= scale;
-            particles[i].vy *= scale;
+            particles->vx[i] *= scale;
+            particles->vy[i] *= scale;
         }
 
-        particles[i].momentum_x = particles[i].mass * particles[i].vx;
-        particles[i].momentum_y = particles[i].mass * particles[i].vy;
+        particles->momentum_x[i] = particles->mass[i] * particles->vx[i];
+        particles->momentum_y[i] = particles->mass[i] * particles->vy[i];
 
-        particles[i].x += particles[i].vx * dt;
-        particles[i].y += particles[i].vy * dt;
+        particles->x[i] += particles->vx[i] * dt;
+        particles->y[i] += particles->vy[i] * dt;
     }
 }
 
-void handleBoundaryCollisions(Particle* particles, int numParticles, float minX, float maxX, float minY, float maxY) {
+// Handle boundary collisions
+void handleBoundaryCollisions(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY) {
     for (int i = 0; i < numParticles; ++i) {
-        if (particles[i].x < minX) {
-            particles[i].x = minX;
-            particles[i].vx *= -1.0f;
-        } else if (particles[i].x > maxX) {
-            particles[i].x = maxX;
-            particles[i].vx *= -1.0f;
+        if (particles->x[i] < minX) {
+            particles->x[i] = minX;
+            particles->vx[i] *= -1.0f;
+        } else if (particles->x[i] > maxX) {
+            particles->x[i] = maxX;
+            particles->vx[i] *= -1.0f;
         }
 
-        if (particles[i].y < minY) {
-            particles[i].y = minY;
-            particles[i].vy *= -1.0f;
-        } else if (particles[i].y > maxY) {
-            particles[i].y = maxY;
-            particles[i].vy *= -1.0f;
+        if (particles->y[i] < minY) {
+            particles->y[i] = minY;
+            particles->vy[i] *= -1.0f;
+        } else if (particles->y[i] > maxY) {
+            particles->y[i] = maxY;
+            particles->vy[i] *= -1.0f;
         }
     }
 }
 
-void applyAttraction(Particle* particles, int numParticles, float centerX, float centerY, float strength) {
+// Apply attraction force
+void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength) {
     for (int i = 0; i < numParticles; ++i) {
-        float dx = centerX - particles[i].x;
-        float dy = centerY - particles[i].y;
+        float dx = centerX - particles->x[i];
+        float dy = centerY - particles->y[i];
         float distSq = dx * dx + dy * dy + 1e-4f;  // Avoid division by zero
         float dist = sqrtf(distSq);
         
@@ -96,16 +143,33 @@ void applyAttraction(Particle* particles, int numParticles, float centerX, float
         float force = strength / distSq;
         
         // Apply the force to the particle's acceleration
-        particles[i].ax += force * dx / dist;
-        particles[i].ay += force * dy / dist;
+        particles->ax[i] += force * dx / dist;
+        particles->ay[i] += force * dy / dist;
     }
 }
 
-void drawParticles(Particle* particles, int numParticles) {
+// Draw particles on the screen
+void drawParticles(Particles* particles, int numParticles) {
     glBegin(GL_POINTS);
     for (int i = 0; i < numParticles; i++) {
-        glColor3f(particles[i].r, particles[i].g, particles[i].b);
-        glVertex2f(particles[i].x, particles[i].y);
+        glColor3f(particles->r[i], particles->g[i], particles->b[i]);
+        glVertex2f(particles->x[i], particles->y[i]);
     }
     glEnd();
+}
+
+// Free allocated memory for particles
+void freeParticles(Particles* particles) {
+    free(particles->x);
+    free(particles->y);
+    free(particles->vx);
+    free(particles->vy);
+    free(particles->ax);
+    free(particles->ay);
+    free(particles->mass);
+    free(particles->r);
+    free(particles->g);
+    free(particles->b);
+    free(particles->momentum_x);
+    free(particles->momentum_y);
 }
