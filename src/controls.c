@@ -5,11 +5,13 @@
 
 static int attract = 0;
 static float centerX = 0.0f, centerY = 0.0f;
+static float holdTime = 0.0f; // Track how long the mouse button is held
 
 // Callback for mouse button input
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         attract = 1;
+        holdTime = 0.0f; // Reset hold time when the button is pressed
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         centerX = (float)xpos / 400.0f - 1.0f;
@@ -17,6 +19,7 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     }
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         attract = 0;
+        holdTime = 0.0f; // Reset hold time when the button is released
     }
 }
 
@@ -41,7 +44,8 @@ void handleInput(GLFWwindow* window, Particles* particles, int numParticles) {
 
     // Apply attraction if mouse is pressed
     if (attract) {
-        applyAttraction(particles, numParticles, centerX, centerY, ATTRACTION_STRENGTH * 3.0f);
+        holdTime += 0.1f; // Increment hold time
+        applyAttraction(particles, numParticles, centerX, centerY, ATTRACTION_STRENGTH * holdTime);
     }
 }
 

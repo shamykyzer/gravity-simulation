@@ -10,4 +10,5 @@ void initControls(GLFWwindow* window);
 // Function to handle input, including resetting the simulation
 void handleInput(GLFWwindow* window, Particles* particles, int numParticles);
 
+
 #endif

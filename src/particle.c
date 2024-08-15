@@ -25,8 +25,8 @@ void initParticles(Particles* particles, int numParticles) {
     for (int i = 0; i < numParticles; ++i) {
         particles->x[i] = (float)rand() / RAND_MAX * 2.0f - 1.0f;
         particles->y[i] = (float)rand() / RAND_MAX * 2.0f - 1.0f;
-        particles->vx[i] = (float)rand() / RAND_MAX * 0.1f - 0.05f;
-        particles->vy[i] = (float)rand() / RAND_MAX * 0.1f - 0.05f;
+        particles->vx[i] = (float)rand() / RAND_MAX * 0.005f - 0.0025f;  // Much slower initial velocity
+        particles->vy[i] = (float)rand() / RAND_MAX * 0.005f - 0.0025f;  // Much slower initial velocity
         particles->ax[i] = 0.0f;
         particles->ay[i] = 0.0f;
         particles->mass[i] = (float)rand() / RAND_MAX * 0.01f + 0.01f;
@@ -35,6 +35,35 @@ void initParticles(Particles* particles, int numParticles) {
         particles->r[i] = (float)rand() / RAND_MAX;
         particles->g[i] = (float)rand() / RAND_MAX;
         particles->b[i] = (float)rand() / RAND_MAX;
+    }
+}
+
+// Update particle positions
+void updateParticles(Particles* particles, int numParticles, float dt) {
+    const float maxVelocity = 0.2f;  // Lower maximum velocity
+    const float dampingFactor = 0.98f;  // Higher damping factor for more reduction in speed
+
+    for (int i = 0; i < numParticles; ++i) {
+        particles->vx[i] += particles->ax[i] * dt;
+        particles->vy[i] += particles->ay[i] * dt;
+
+        // Apply increased damping to reduce velocity more significantly
+        particles->vx[i] *= dampingFactor;
+        particles->vy[i] *= dampingFactor;
+
+        // Clamp the velocity to a lower max velocity
+        float speed = sqrtf(particles->vx[i] * particles->vx[i] + particles->vy[i] * particles->vy[i]);
+        if (speed > maxVelocity) {
+            float scale = maxVelocity / speed;
+            particles->vx[i] *= scale;
+            particles->vy[i] *= scale;
+        }
+
+        particles->momentum_x[i] = particles->mass[i] * particles->vx[i];
+        particles->momentum_y[i] = particles->mass[i] * particles->vy[i];
+
+        particles->x[i] += particles->vx[i] * dt;
+        particles->y[i] += particles->vy[i] * dt;
     }
 }
 
@@ -85,30 +114,6 @@ void computeForces(Particles* particles, int numParticles, float G) {
     }
 
     freeQuadtree(root);
-}
-
-// Update particle positions
-void updateParticles(Particles* particles, int numParticles, float dt) {
-    const float maxVelocity = 0.5f;  // Increased maximum velocity
-
-    for (int i = 0; i < numParticles; ++i) {
-        particles->vx[i] += particles->ax[i] * dt;
-        particles->vy[i] += particles->ay[i] * dt;
-
-        // Clamp the velocity
-        float speed = sqrtf(particles->vx[i] * particles->vx[i] + particles->vy[i] * particles->vy[i]);
-        if (speed > maxVelocity) {
-            float scale = maxVelocity / speed;
-            particles->vx[i] *= scale;
-            particles->vy[i] *= scale;
-        }
-
-        particles->momentum_x[i] = particles->mass[i] * particles->vx[i];
-        particles->momentum_y[i] = particles->mass[i] * particles->vy[i];
-
-        particles->x[i] += particles->vx[i] * dt;
-        particles->y[i] += particles->vy[i] * dt;
-    }
 }
 
 // Handle boundary collisions
@@ -230,6 +235,22 @@ void drawParticles(Particles* particles, int numParticles) {
         glVertex2f(particles->x[i], particles->y[i]);
     }
     glEnd();
+}
+
+void applyOrbit(Particles* particles, int numParticles, float centerX, float centerY, float strength) {
+    for (int i = 0; i < numParticles; ++i) {
+        float dx = centerX - particles->x[i];
+        float dy = centerY - particles->y[i];
+        float distance = sqrtf(dx * dx + dy * dy);
+        float force = strength / (distance * distance + 1e-4f); // Avoid division by zero
+
+        // Calculate velocity to create orbit
+        float forceX = force * -dy / distance;
+        float forceY = force * dx / distance;
+
+        particles->vx[i] += forceX;
+        particles->vy[i] += forceY;
+    }
 }
 
 // Free allocated memory for particles

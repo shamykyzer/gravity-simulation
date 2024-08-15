@@ -16,6 +16,7 @@ void computeForces(Particles* particles, int numParticles, float G);
 void updateParticles(Particles* particles, int numParticles, float dt);
 void handleBoundaryCollisions(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY);
 void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength);
+void applyOrbit(Particles* particles, int numParticles, float centerX, float centerY, float strength);
 void drawParticles(Particles* particles, int numParticles);
 void freeParticles(Particles* particles);
 void applyBorderRepulsion(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY, float repulsionStrength, float thresholdDistance);
