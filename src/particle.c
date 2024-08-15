@@ -4,6 +4,7 @@
 #include "constants.h"
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>  // Include this for printf
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -161,74 +162,22 @@ void applyAttraction(Particles* particles, int numParticles, float centerX, floa
     }
 }
 
-// Apply repulsive force near the borders to make particles avoid them
-void applyBorderRepulsion(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY, float repulsionStrength, float thresholdDistance) {
-    for (int i = 0; i < numParticles; ++i) {
-        // Repulsion from the left border
-        if (particles->x[i] < minX + thresholdDistance) {
-            float distance = particles->x[i] - minX;
-            float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
-            particles->ax[i] += force;
-        }
-
-        // Repulsion from the right border
-        if (particles->x[i] > maxX - thresholdDistance) {
-            float distance = maxX - particles->x[i];
-            float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
-            particles->ax[i] -= force;
-        }
-
-        // Repulsion from the bottom border
-        if (particles->y[i] < minY + thresholdDistance) {
-            float distance = particles->y[i] - minY;
-            float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
-            particles->ay[i] += force;
-        }
-
-        // Repulsion from the top border
-        if (particles->y[i] > maxY - thresholdDistance) {
-            float distance = maxY - particles->y[i];
-            float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
-            particles->ay[i] -= force;
-        }
-    }
-}
-
 // Draw particles on the screen
 void drawParticles(Particles* particles, int numParticles) {
     glBegin(GL_POINTS);
     for (int i = 0; i < numParticles; i++) {
-        // Calculate the speed of the particle
         float speed = sqrtf(particles->vx[i] * particles->vx[i] + particles->vy[i] * particles->vy[i]);
 
-        // Normalize the speed to a value between 0 and 1 for color mapping
-        float normalizedSpeed = fminf(speed / 0.5f, 1.0f);  // Assuming 0.5f is the max speed
+        float r = 0.0f, g = 1.0f, b = 1.0f;  // Cyan color by default
 
-        // Set color based on speed: 
-        // - Blue (0, 0, 1) for very slow particles
-        // - Cyan (0, 1, 1) for slow to moderate speed particles
-        // - Green (0, 1, 0) for moderate speed particles
-        // - Yellow (1, 1, 0) for fast particles
-        // - Red (1, 0, 0) for very fast particles
-
-        float r, g, b;
-
-        if (normalizedSpeed < 0.25f) {
-            r = 0.0f;
-            g = normalizedSpeed * 4.0f;
-            b = 1.0f;
-        } else if (normalizedSpeed < 0.5f) {
-            r = 0.0f;
-            g = 1.0f;
-            b = 1.0f - (normalizedSpeed - 0.25f) * 4.0f;
-        } else if (normalizedSpeed < 0.75f) {
-            r = (normalizedSpeed - 0.5f) * 4.0f;
-            g = 1.0f;
-            b = 0.0f;
-        } else {
+        if (speed > 0.2f && speed < 0.4f) {  // Medium speed, make it yellow
             r = 1.0f;
-            g = 1.0f - (normalizedSpeed - 0.75f) * 4.0f;
+            g = 1.0f;
             b = 0.0f;
+        } else if (speed >= 0.4f) {  // High speed, make it white
+            r = 1.0f;
+            g = 1.0f;
+            b = 1.0f;
         }
 
         glColor3f(r, g, b);  // Set the particle color based on speed
@@ -241,17 +190,73 @@ void applyOrbit(Particles* particles, int numParticles, float centerX, float cen
     for (int i = 0; i < numParticles; ++i) {
         float dx = centerX - particles->x[i];
         float dy = centerY - particles->y[i];
-        float distance = sqrtf(dx * dx + dy * dy);
-        float force = strength / (distance * distance + 1e-4f); // Avoid division by zero
+        float distSq = dx * dx + dy * dy + 1e-4f;
+        float dist = sqrtf(distSq);
 
-        // Calculate velocity to create orbit
-        float forceX = force * -dy / distance;
-        float forceY = force * dx / distance;
+        float force = strength / distSq;
 
-        particles->vx[i] += forceX;
-        particles->vy[i] += forceY;
+        particles->ax[i] += force * dx / dist;
+        particles->ay[i] += force * dy / dist;
+
+        particles->vx[i] += particles->ax[i];
+        particles->vy[i] += particles->ay[i];
     }
 }
+
+// //void applyBorderRepulsion(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY, float repulsionStrength, float thresholdDistance) {
+//     for (int i = 0; i < numParticles; ++i) {
+//         // Check left and right borders
+//         if (particles->x[i] < minX + thresholdDistance) {
+//             float distance = minX + thresholdDistance - particles->x[i];
+//             particles->x[i] += repulsionStrength * distance;
+//             printf("Particle %d at left border, repelled by %f\n", i, repulsionStrength * distance);
+//         }
+//         else if (particles->x[i] > maxX - thresholdDistance) {
+//             float distance = particles->x[i] - (maxX - thresholdDistance);
+//             particles->x[i] -= repulsionStrength * distance;
+//             printf("Particle %d at right border, repelled by %f\n", i, repulsionStrength * distance);
+//         }
+
+//         // Check top and bottom borders
+//         if (particles->y[i] < minY + thresholdDistance) {
+//             float distance = minY + thresholdDistance - particles->y[i];
+//             particles->y[i] += repulsionStrength * distance;
+//             printf("Particle %d at bottom border, repelled by %f\n", i, repulsionStrength * distance);
+//         }
+//         else if (particles->y[i] > maxY - thresholdDistance) {
+//             float distance = particles->y[i] - (maxY - thresholdDistance);
+//             particles->y[i] -= repulsionStrength * distance;
+//             printf("Particle %d at top border, repelled by %f\n", i, repulsionStrength * distance);
+//         }
+//     }
+// }
+
+// void applyBounceBack(Particles *particles, int numParticles, float centerX, float centerY, float bounceStrength) {
+//     // Constants
+//     float thresholdDistance = 0.1f;  // Adjust this value as needed
+
+//     for (int i = 0; i < numParticles; ++i) {
+//         // Compute distance from the particle to the center point
+//         float dx = particles->x[i] - centerX;
+//         float dy = particles->y[i] - centerY;
+//         float distance = sqrtf(dx * dx + dy * dy);
+
+//         // Apply bounce back only if within threshold distance
+//         if (distance < thresholdDistance && distance > 0.0f) {
+//             // Normalize the direction vector
+//             float forceX = dx / distance;
+//             float forceY = dy / distance;
+
+//             // Compute the bounce-back force
+//             float forceMagnitude = bounceStrength * (1.0f - distance / thresholdDistance);
+            
+//             // Update particle positions based on bounce-back force
+//             // Move the particle away from the center more aggressively
+//             particles->x[i] += forceX * forceMagnitude;
+//             particles->y[i] += forceY * forceMagnitude;
+//         }
+//     }
+// }
 
 // Free allocated memory for particles
 void freeParticles(Particles* particles) {
