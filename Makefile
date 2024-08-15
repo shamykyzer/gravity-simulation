@@ -1,22 +1,13 @@
-OBJECTS = src/main.o src/particle.o src/quadtree.o src/shader_utils.o src/controls.o
+CC = gcc
+CFLAGS = -Wall -g -Iinclude
+OBJS = src/main.o src/particle.o src/quadtree.o src/shader_utils.o src/controls.o src/integral_image.o
+TARGET = gravity_simulation
 
-gravity_simulation: $(OBJECTS)
-	 gcc -o gravity_simulation $(OBJECTS) -lGL -lGLEW -lglfw -lm
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) -lGL -lGLEW -lglfw -lm
 
-src/main.o: src/main.c include/particle.h include/shader_utils.h include/controls.h
-	 gcc -Wall -g -Iinclude -c -o src/main.o src/main.c
-
-src/particle.o: src/particle.c include/particle.h include/quadtree.h include/particle_struct.h
-	 gcc -Wall -g -Iinclude -c -o src/particle.o src/particle.c
-
-src/quadtree.o: src/quadtree.c include/quadtree.h include/particle_struct.h
-	 gcc -Wall -g -Iinclude -c -o src/quadtree.o src/quadtree.c
-
-src/shader_utils.o: src/shader_utils.c include/shader_utils.h
-	 gcc -Wall -g -Iinclude -c -o src/shader_utils.o src/shader_utils.c
-
-src/controls.o: src/controls.c include/controls.h include/particle.h
-	 gcc -Wall -g -Iinclude -c -o src/controls.o src/controls.c
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	 rm -f src/*.o gravity_simulation
+	rm -f $(OBJS) $(TARGET)

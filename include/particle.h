@@ -1,23 +1,15 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-typedef struct {
-    float *x, *y;       // Positions
-    float *vx, *vy;     // Velocities
-    float *ax, *ay;     // Accelerations
-    float *mass;        // Masses
-    float *r, *g, *b;   // Colors
-    float *momentum_x, *momentum_y; // Momenta
-} Particles;
+#include "particle_struct.h"  // Include the Particle struct definition
 
-// Function prototypes for operations on the SoA structure
-void initParticles(Particles* particles, int numParticles);
-void computeForces(Particles* particles, int numParticles, float G);
-void updateParticles(Particles* particles, int numParticles, float dt);
-void handleBoundaryCollisions(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY);
-void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength);
-void drawParticles(Particles* particles, int numParticles);
-void freeParticles(Particles* particles);
-void applyBorderRepulsion(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY, float repulsionStrength, float thresholdDistance);
+
+void initParticles(Particle* particles, int numParticles);
+void computeForces(Particle* particles, int numParticles, float G, float repulsionStrength);
+void applyAttraction(Particle* particles, int numParticles, float centerX, float centerY, float attractionStrength, float repulsionStrength);
+void handleBoundaryCollisions(Particle* particles, int numParticles, float minX, float maxX, float minY, float maxY);
+void updateParticles(Particle* particles, int numParticles, float dt);
+void drawParticles(Particle* particles, int numParticles);
+void cleanupSimulation();
 
 #endif

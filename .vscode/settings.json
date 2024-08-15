@@ -62,6 +62,7 @@
     "particle.h": "c",
     "particle_struct.h": "c",
     "constants.h": "c",
-    "glfw3.h": "c"
+    "glfw3.h": "c",
+    "integral_image.h": "c"
   }
 }

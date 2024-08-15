@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include "shader_utils.h"
 #include <stdio.h>
 
 GLuint createShaderProgram(const char* vertexSource, const char* fragmentSource) {
