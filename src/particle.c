@@ -163,28 +163,28 @@ void applyBorderRepulsion(Particles* particles, int numParticles, float minX, fl
         if (particles->x[i] < minX + thresholdDistance) {
             float distance = particles->x[i] - minX;
             float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
-            particles->ax[i] += force;
+            particles->ax[i] += force * 0.1f;  // Reduce the repulsion force by half
         }
 
         // Repulsion from the right border
         if (particles->x[i] > maxX - thresholdDistance) {
             float distance = maxX - particles->x[i];
             float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
-            particles->ax[i] -= force;
+            particles->ax[i] -= force * 0.1f;  // Reduce the repulsion force by half
         }
 
         // Repulsion from the bottom border
         if (particles->y[i] < minY + thresholdDistance) {
             float distance = particles->y[i] - minY;
             float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
-            particles->ay[i] += force;
+            particles->ay[i] += force * 0.1f;  // Reduce the repulsion force by half
         }
 
         // Repulsion from the top border
         if (particles->y[i] > maxY - thresholdDistance) {
             float distance = maxY - particles->y[i];
             float force = repulsionStrength / (distance * distance + 1e-4f);  // Avoid division by zero
-            particles->ay[i] -= force;
+            particles->ay[i] -= force * 0.1f;  // Reduce the repulsion force by half
         }
     }
 }
