@@ -6,8 +6,8 @@
 static int attract = 0;
 static int repel = 0;
 static float centerX = 0.0f, centerY = 0.0f;
-static float orbitStrength = ATTRACTION_STRENGTH;
-static float repulsionStrength = ATTRACTION_STRENGTH; // Base repulsion strength
+static float attractionStrength = ATTRACTION_STRENGTH;
+static float repulsionStrength = 0.0f;
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -19,11 +19,14 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     }
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         attract = 0;
-        orbitStrength = ATTRACTION_STRENGTH; // Reset strength
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         repel = 1;
-        repulsionStrength = ATTRACTION_STRENGTH; // Start with base repulsion strength
+        repulsionStrength = REPULSION_STRENGTH;  // Reset to initial strength
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        centerX = (float)xpos / 400.0f - 1.0f;
+        centerY = 1.0f - (float)ypos / 300.0f;
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
         repel = 0;
@@ -37,8 +40,12 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     }
 }
 
-void resetSimulation(Particles* particles, int numParticles) {
-    initParticles(particles, numParticles);
+void handleScroll(GLFWwindow* window, double xoffset, double yoffset) {
+    // Adjust the gravitational pull based on scroll direction
+    attractionStrength += (float)yoffset * 0.01f;
+    if (attractionStrength < 0.0f) {
+        attractionStrength = 0.0f;  // Prevent negative attraction strength
+    }
 }
 
 void handleInput(GLFWwindow* window, Particles* particles, int numParticles) {
@@ -47,17 +54,18 @@ void handleInput(GLFWwindow* window, Particles* particles, int numParticles) {
     }
 
     if (attract) {
-        orbitStrength += 0.001f; // Increase orbit strength the longer left-click is held
-        applyOrbit(particles, numParticles, centerX, centerY, orbitStrength);
+        applyAttraction(particles, numParticles, centerX, centerY, attractionStrength);
+        attractionStrength += 0.01f;  // Increase attraction strength the longer the button is held
     }
 
     if (repel) {
-        repulsionStrength += 0.001f; // Increase repulsion strength the longer right-click is held
-        //applyBounceBack(particles, numParticles, centerX, centerY, repulsionStrength);
+        applyRepulsion(particles, numParticles, centerX, centerY, repulsionStrength);
+        repulsionStrength += 0.01f;  // Increase repulsion strength the longer the button is held
     }
 }
 
 void initControls(GLFWwindow* window) {
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
+    glfwSetScrollCallback(window, handleScroll);  // Register the scroll callback
 }

@@ -9,7 +9,6 @@
 #include <time.h>
 
 #define MAX_PARTICLES 7000  // Choose the value you prefer
-#define REPULSION_STRENGTH 0.2f  // Increased repulsion strength
 #define THRESHOLD_DISTANCE 0.1f
 
 Particles particles;  // Use the SoA structure

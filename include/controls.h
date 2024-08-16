@@ -10,5 +10,7 @@ void initControls(GLFWwindow* window);
 // Function to handle input, including resetting the simulation
 void handleInput(GLFWwindow* window, Particles* particles, int numParticles);
 
+// Function to handle mouse scroll input for adjusting gravitational pull
+void handleScroll(GLFWwindow* window, double xoffset, double yoffset);
 
 #endif
