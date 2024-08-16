@@ -22,5 +22,5 @@ void drawParticles(Particles* particles, int numParticles);
 void freeParticles(Particles *particles);
 void applyBounceBack(Particles *particles, int numParticles, float centerX, float centerY, float bounceStrength);
 void resetSimulation(Particles *particles, int numParticles);
-void applyRepulsion(Particles *particles, int numParticles, float centerX, float centerY, float repulsionStrength);
+void applyGlobalRepulsion(Particles* particles, int numParticles, float repulsionStrength) ;
 #endif

@@ -1,12 +1,9 @@
-#include "particle_struct.h"
 #include "particle.h"
 #include "quadtree.h"
 #include "constants.h"
 #include <math.h>
 #include <stdlib.h>
-#include <stdio.h>  // Include this for printf
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 
 // Initialize particles
 void initParticles(Particles* particles, int numParticles) {
@@ -26,16 +23,16 @@ void initParticles(Particles* particles, int numParticles) {
     for (int i = 0; i < numParticles; ++i) {
         particles->x[i] = (float)rand() / RAND_MAX * 2.0f - 1.0f;
         particles->y[i] = (float)rand() / RAND_MAX * 2.0f - 1.0f;
-        particles->vx[i] = (float)rand() / RAND_MAX * 0.02f - 0.01f;
-        particles->vy[i] = (float)rand() / RAND_MAX * 0.02f - 0.01f;
+        particles->vx[i] = (float)rand() / RAND_MAX * 0.1f - 0.05f;
+        particles->vy[i] = (float)rand() / RAND_MAX * 0.1f - 0.05f;
         particles->ax[i] = 0.0f;
         particles->ay[i] = 0.0f;
         particles->mass[i] = (float)rand() / RAND_MAX * 0.01f + 0.01f;
         particles->momentum_x[i] = particles->mass[i] * particles->vx[i];
         particles->momentum_y[i] = particles->mass[i] * particles->vy[i];
-        particles->r[i] = 0.0f;
-        particles->g[i] = 1.0f;
-        particles->b[i] = 1.0f;  // Default to cyan
+        particles->r[i] = (float)rand() / RAND_MAX;
+        particles->g[i] = (float)rand() / RAND_MAX;
+        particles->b[i] = (float)rand() / RAND_MAX;
     }
 }
 
@@ -90,12 +87,13 @@ void computeForces(Particles* particles, int numParticles, float G) {
 
 // Update particle positions
 void updateParticles(Particles* particles, int numParticles, float dt) {
-    const float maxVelocity = 0.5f;
+    const float maxVelocity = 0.5f;  // Increased maximum velocity
 
     for (int i = 0; i < numParticles; ++i) {
         particles->vx[i] += particles->ax[i] * dt;
         particles->vy[i] += particles->ay[i] * dt;
 
+        // Clamp the velocity
         float speed = sqrtf(particles->vx[i] * particles->vx[i] + particles->vy[i] * particles->vy[i]);
         if (speed > maxVelocity) {
             float scale = maxVelocity / speed;
@@ -111,69 +109,74 @@ void updateParticles(Particles* particles, int numParticles, float dt) {
     }
 }
 
-// Handle boundary collisions
+// Handle boundary collisions with reduced momentum
 void handleBoundaryCollisions(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY) {
+    const float dampingFactor = 0.8f;  // Reduce momentum by 20% on each bounce
+
     for (int i = 0; i < numParticles; ++i) {
         if (particles->x[i] < minX) {
             particles->x[i] = minX;
-            particles->vx[i] *= -1.0f;
+            particles->vx[i] = -particles->vx[i] * dampingFactor;  // Invert velocity and apply damping
         } else if (particles->x[i] > maxX) {
             particles->x[i] = maxX;
-            particles->vx[i] *= -1.0f;
+            particles->vx[i] = -particles->vx[i] * dampingFactor;
         }
 
         if (particles->y[i] < minY) {
             particles->y[i] = minY;
-            particles->vy[i] *= -1.0f;
+            particles->vy[i] = -particles->vy[i] * dampingFactor;
         } else if (particles->y[i] > maxY) {
             particles->y[i] = maxY;
-            particles->vy[i] *= -1.0f;
+            particles->vy[i] = -particles->vy[i] * dampingFactor;
         }
     }
 }
 
-// Apply gravitational attraction towards a point
+// Apply attraction force towards a center point
 void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength) {
     for (int i = 0; i < numParticles; ++i) {
         float dx = centerX - particles->x[i];
         float dy = centerY - particles->y[i];
-        float distSq = dx * dx + dy * dy + 1e-4f;
+        float distSq = dx * dx + dy * dy + 1e-4f;  // Prevent division by zero
         float dist = sqrtf(distSq);
 
+        // Compute the attraction force
         float force = strength / distSq;
 
+        // Calculate the components of the force
         float forceX = force * dx / dist;
         float forceY = force * dy / dist;
 
+        // Apply the force to the particle's acceleration
         particles->ax[i] += forceX;
         particles->ay[i] += forceY;
 
+        // Update velocity to make particles follow the cursor
         particles->vx[i] += particles->ax[i];
         particles->vy[i] += particles->ay[i];
     }
 }
 
-
-// Reset the simulation
-void resetSimulation(Particles* particles, int numParticles) {
-    initParticles(particles, numParticles);  // Reinitialize particles
-}
-
-// Apply repulsion force from a center point
-void applyRepulsion(Particles* particles, int numParticles, float centerX, float centerY, float repulsionStrength) {
+// Apply global repulsion between all particles
+void applyGlobalRepulsion(Particles* particles, int numParticles, float repulsionStrength) {
     for (int i = 0; i < numParticles; ++i) {
-        float dx = particles->x[i] - centerX;
-        float dy = particles->y[i] - centerY;
-        float distSq = dx * dx + dy * dy + 1e-4f;  // Prevent division by zero
-        float dist = sqrtf(distSq);
+        for (int j = i + 1; j < numParticles; ++j) {
+            float dx = particles->x[j] - particles->x[i];
+            float dy = particles->y[j] - particles->y[i];
+            float distSq = dx * dx + dy * dy + 1e-4f;  // Prevent division by zero
+            float dist = sqrtf(distSq);
 
-        if (dist < 0.05f) {  // Adjust this threshold as needed
-            float force = repulsionStrength / distSq;
-            float forceX = force * dx / dist;
-            float forceY = force * dy / dist;
+            if (dist < 0.05f) {  // Adjust this threshold as needed
+                float force = repulsionStrength / distSq;
+                float forceX = force * dx / dist;
+                float forceY = force * dy / dist;
 
-            particles->vx[i] += forceX;
-            particles->vy[i] += forceY;
+                particles->vx[i] -= forceX;
+                particles->vy[i] -= forceY;
+
+                particles->vx[j] += forceX;
+                particles->vy[j] += forceY;
+            }
         }
     }
 }
@@ -182,24 +185,33 @@ void applyRepulsion(Particles* particles, int numParticles, float centerX, float
 void drawParticles(Particles* particles, int numParticles) {
     glBegin(GL_POINTS);
     for (int i = 0; i < numParticles; i++) {
+        // Calculate the speed of the particle
         float speed = sqrtf(particles->vx[i] * particles->vx[i] + particles->vy[i] * particles->vy[i]);
 
-        float r = 0.0f, g = 1.0f, b = 1.0f;  // Default to cyan
+        // Normalize the speed to a value between 0 and 1 for color mapping
+        float normalizedSpeed = fminf(speed / 0.5f, 1.0f);  // Assuming 0.5f is the max speed
 
-        if (speed > 0.2f && speed < 0.4f) {
+        // Set color based on speed: Cyan -> Yellow -> White
+        float r = 0.0f, g = 1.0f, b = 1.0f;  // Default Cyan color
+
+        if (normalizedSpeed > 0.8f) {  // High speed, make particle white
             r = 1.0f;
             g = 1.0f;
-            b = 0.0f;  // Yellow for medium speed
-        } else if (speed >= 0.4f) {
+            b = 1.0f;
+        } else if (normalizedSpeed > 0.4f) {  // Medium speed, make particle yellow
             r = 1.0f;
             g = 1.0f;
-            b = 1.0f;  // White for high speed
+            b = 0.0f;
         }
 
-        glColor3f(r, g, b);
+        glColor3f(r, g, b);  // Set the particle color based on speed
         glVertex2f(particles->x[i], particles->y[i]);
     }
     glEnd();
+}
+
+void resetSimulation(Particles* particles, int numParticles) {
+    initParticles(particles, numParticles);
 }
 
 // Free allocated memory for particles

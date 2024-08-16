@@ -8,16 +8,12 @@
 #include <stdio.h>
 #include <time.h>
 
-#define MAX_PARTICLES 7000  // Choose the value you prefer
-#define THRESHOLD_DISTANCE 0.1f
-
 Particles particles;  // Use the SoA structure
 
-void updateParticlesAndApplyAttraction(float dt) {
-    computeForces(&particles, MAX_PARTICLES, GRAVITY_CONST);
-    updateParticles(&particles, MAX_PARTICLES, dt);
-    handleBoundaryCollisions(&particles, MAX_PARTICLES, -1.0f, 1.0f, -1.0f, 1.0f);
-    //applyBorderRepulsion(&particles, MAX_PARTICLES, -1.0f, 1.0f, -1.0f, 1.0f, REPULSION_STRENGTH, THRESHOLD_DISTANCE);
+void updateParticlesAndForces(Particles* particles, int numParticles, float dt) {
+    computeForces(particles, numParticles, GRAVITY_CONST);
+    updateParticles(particles, numParticles, dt);
+    handleBoundaryCollisions(particles, numParticles, -1.0f, 1.0f, -1.0f, 1.0f);
 }
 
 int main() {
@@ -80,7 +76,7 @@ int main() {
         float dt = 0.016f;  // Simulate a fixed timestep (approx. 60 FPS)
 
         handleInput(window, &particles, MAX_PARTICLES);  // Handle input, including reset and attraction
-        updateParticlesAndApplyAttraction(dt);
+        updateParticlesAndForces(&particles, MAX_PARTICLES, dt);
 
         // Prepare data to send to GPU
         float* particleData = (float*)malloc(MAX_PARTICLES * 5 * sizeof(float));  // 2 for position, 3 for color

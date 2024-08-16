@@ -12,6 +12,7 @@ static float repulsionStrength = 0.0f;
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         attract = 1;
+        attractionStrength = ATTRACTION_STRENGTH;  // Reset to initial strength
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
         centerX = (float)xpos / 400.0f - 1.0f;
@@ -23,10 +24,6 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         repel = 1;
         repulsionStrength = REPULSION_STRENGTH;  // Reset to initial strength
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
-        centerX = (float)xpos / 400.0f - 1.0f;
-        centerY = 1.0f - (float)ypos / 300.0f;
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
         repel = 0;
@@ -37,14 +34,6 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
     if (attract || repel) {
         centerX = (float)xpos / 400.0f - 1.0f;
         centerY = 1.0f - (float)ypos / 300.0f;
-    }
-}
-
-void handleScroll(GLFWwindow* window, double xoffset, double yoffset) {
-    // Adjust the gravitational pull based on scroll direction
-    attractionStrength += (float)yoffset * 0.01f;
-    if (attractionStrength < 0.0f) {
-        attractionStrength = 0.0f;  // Prevent negative attraction strength
     }
 }
 
@@ -59,7 +48,7 @@ void handleInput(GLFWwindow* window, Particles* particles, int numParticles) {
     }
 
     if (repel) {
-        applyRepulsion(particles, numParticles, centerX, centerY, repulsionStrength);
+        applyGlobalRepulsion(particles, numParticles, repulsionStrength);
         repulsionStrength += 0.01f;  // Increase repulsion strength the longer the button is held
     }
 }
@@ -67,5 +56,4 @@ void handleInput(GLFWwindow* window, Particles* particles, int numParticles) {
 void initControls(GLFWwindow* window) {
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
-    glfwSetScrollCallback(window, handleScroll);  // Register the scroll callback
 }
