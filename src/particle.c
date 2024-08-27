@@ -1,9 +1,11 @@
+#include <GL/glew.h>  // Move this to the top
 #include "particle.h"
 #include "quadtree.h"
 #include "constants.h"
+#include <GLFW/glfw3.h>
+#include "controls.h"  // Include controls to access simulation speed
 #include <math.h>
 #include <stdlib.h>
-#include <GL/glew.h>
 
 // Initialize particles
 void initParticles(Particles* particles, int numParticles) {
@@ -19,6 +21,8 @@ void initParticles(Particles* particles, int numParticles) {
     particles->b = (float*)malloc(numParticles * sizeof(float));
     particles->momentum_x = (float*)malloc(numParticles * sizeof(float));
     particles->momentum_y = (float*)malloc(numParticles * sizeof(float));
+    particles->prev_x = (float*)malloc(numParticles * sizeof(float));
+    particles->prev_y = (float*)malloc(numParticles * sizeof(float));
 
     for (int i = 0; i < numParticles; ++i) {
         particles->x[i] = (float)rand() / RAND_MAX * 2.0f - 1.0f;
@@ -33,6 +37,8 @@ void initParticles(Particles* particles, int numParticles) {
         particles->r[i] = (float)rand() / RAND_MAX;
         particles->g[i] = (float)rand() / RAND_MAX;
         particles->b[i] = (float)rand() / RAND_MAX;
+        particles->prev_x[i] = particles->x[i];
+        particles->prev_y[i] = particles->y[i];
     }
 }
 
@@ -87,47 +93,54 @@ void computeForces(Particles* particles, int numParticles, float G) {
 
 // Update particle positions
 void updateParticles(Particles* particles, int numParticles, float dt) {
-    const float maxVelocity = 0.5f;  // Increased maximum velocity
+    float speed = getSimulationSpeed();  // Get the current simulation speed
+    dt *= speed;  // Adjust the time step by the simulation speed
 
     for (int i = 0; i < numParticles; ++i) {
-        particles->vx[i] += particles->ax[i] * dt;
-        particles->vy[i] += particles->ay[i] * dt;
+        float disp_x = particles->x[i] - particles->prev_x[i];
+        float disp_y = particles->y[i] - particles->prev_y[i];
 
-        // Clamp the velocity
-        float speed = sqrtf(particles->vx[i] * particles->vx[i] + particles->vy[i] * particles->vy[i]);
-        if (speed > maxVelocity) {
-            float scale = maxVelocity / speed;
-            particles->vx[i] *= scale;
-            particles->vy[i] *= scale;
-        }
+        // Update previous positions
+        particles->prev_x[i] = particles->x[i];
+        particles->prev_y[i] = particles->y[i];
 
+        // Verlet integration
+        particles->x[i] += disp_x + particles->ax[i] * dt * dt;
+        particles->y[i] += disp_y + particles->ay[i] * dt * dt;
+
+        // Reset acceleration
+        particles->ax[i] = 0.0f;
+        particles->ay[i] = 0.0f;
+
+        // Calculate velocity (for visualization or other purposes)
+        particles->vx[i] = (particles->x[i] - particles->prev_x[i]) / dt;
+        particles->vy[i] = (particles->y[i] - particles->prev_y[i]) / dt;
+
+        // Update momentum
         particles->momentum_x[i] = particles->mass[i] * particles->vx[i];
         particles->momentum_y[i] = particles->mass[i] * particles->vy[i];
-
-        particles->x[i] += particles->vx[i] * dt;
-        particles->y[i] += particles->vy[i] * dt;
     }
 }
 
 // Handle boundary collisions with reduced momentum
 void handleBoundaryCollisions(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY) {
-    const float dampingFactor = 0.8f;  // Reduce momentum by 20% on each bounce
+    const float dampingFactor = 0.8f;
 
     for (int i = 0; i < numParticles; ++i) {
         if (particles->x[i] < minX) {
             particles->x[i] = minX;
-            particles->vx[i] = -particles->vx[i] * dampingFactor;  // Invert velocity and apply damping
+            particles->prev_x[i] = particles->x[i] + (particles->x[i] - particles->prev_x[i]) * dampingFactor;
         } else if (particles->x[i] > maxX) {
             particles->x[i] = maxX;
-            particles->vx[i] = -particles->vx[i] * dampingFactor;
+            particles->prev_x[i] = particles->x[i] + (particles->x[i] - particles->prev_x[i]) * dampingFactor;
         }
 
         if (particles->y[i] < minY) {
             particles->y[i] = minY;
-            particles->vy[i] = -particles->vy[i] * dampingFactor;
+            particles->prev_y[i] = particles->y[i] + (particles->y[i] - particles->prev_y[i]) * dampingFactor;
         } else if (particles->y[i] > maxY) {
             particles->y[i] = maxY;
-            particles->vy[i] = -particles->vy[i] * dampingFactor;
+            particles->prev_y[i] = particles->y[i] + (particles->y[i] - particles->prev_y[i]) * dampingFactor;
         }
     }
 }
@@ -154,6 +167,33 @@ void applyAttraction(Particles* particles, int numParticles, float centerX, floa
         // Update velocity to make particles follow the cursor
         particles->vx[i] += particles->ax[i];
         particles->vy[i] += particles->ay[i];
+    }
+}
+
+// Apply centripetal force towards a center point for orbiting
+void applyCentripetalForce(Particles* particles, int numParticles, float centerX, float centerY, float strength) {
+    for (int i = 0; i < numParticles; ++i) {
+        float dx = centerX - particles->x[i];
+        float dy = centerY - particles->y[i];
+        float distSq = dx * dx + dy * dy + 1e-4f;  // Prevent division by zero
+        float dist = sqrtf(distSq);
+
+        // Compute the centripetal force
+        float force = strength / distSq;
+
+        // Calculate the components of the force
+        float forceX = force * dx / dist;
+        float forceY = force * dy / dist;
+
+        // Apply the force to the particle's acceleration
+        particles->ax[i] += forceX;
+        particles->ay[i] += forceY;
+
+        // Update velocity to make particles orbit around the center
+        float tangentX = -dy / dist;
+        float tangentY = dx / dist;
+        particles->vx[i] += tangentX * force;
+        particles->vy[i] += tangentY * force;
     }
 }
 
@@ -228,4 +268,6 @@ void freeParticles(Particles* particles) {
     free(particles->b);
     free(particles->momentum_x);
     free(particles->momentum_y);
+    free(particles->prev_x);
+    free(particles->prev_y);
 }

@@ -1,16 +1,12 @@
 #ifndef CONTROLS_H
 #define CONTROLS_H
 
+#include <GL/glew.h>  // Add this line
 #include <GLFW/glfw3.h>
 #include "particle.h"
 
-// Function to initialize controls
 void initControls(GLFWwindow* window);
-
-// Function to handle input, including resetting the simulation
 void handleInput(GLFWwindow* window, Particles* particles, int numParticles);
+float getSimulationSpeed();  // Add this line
 
-// Function to handle mouse scroll input for adjusting gravitational pull
-void handleScroll(GLFWwindow* window, double xoffset, double yoffset);
-
-#endif
+#endif // CONTROLS_H

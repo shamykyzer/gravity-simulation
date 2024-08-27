@@ -24,7 +24,7 @@ int main() {
         return -1;
     }
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Particle Simulation", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1200, 900, "Particle Simulation", NULL, NULL);
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
         glfwTerminate();

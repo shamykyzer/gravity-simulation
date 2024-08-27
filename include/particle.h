@@ -2,7 +2,8 @@
 #define PARTICLE_H
 
 typedef struct {
-    float *x, *y;       // Positions
+    float *x, *y;       // Current positions
+    float *prev_x, *prev_y; // Previous positions
     float *vx, *vy;     // Velocities
     float *ax, *ay;     // Accelerations
     float *mass;        // Masses
@@ -16,11 +17,10 @@ void computeForces(Particles* particles, int numParticles, float G);
 void updateParticles(Particles* particles, int numParticles, float dt);
 void handleBoundaryCollisions(Particles* particles, int numParticles, float minX, float maxX, float minY, float maxY);
 void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength);
-void applyOrbit(Particles* particles, int numParticles, float centerX, float centerY, float strength);
+void applyCentripetalForce(Particles* particles, int numParticles, float centerX, float centerY, float strength);
+void applyGlobalRepulsion(Particles* particles, int numParticles, float repulsionStrength);
 void drawParticles(Particles* particles, int numParticles);
-//void applyBorderRepulsion(Particles *particles, int numParticles, float minX, float maxX, float minY, float maxY, float repulsionStrength, float thresholdDistance);
-void freeParticles(Particles *particles);
-void applyBounceBack(Particles *particles, int numParticles, float centerX, float centerY, float bounceStrength);
-void resetSimulation(Particles *particles, int numParticles);
-void applyGlobalRepulsion(Particles* particles, int numParticles, float repulsionStrength) ;
-#endif
+void resetSimulation(Particles* particles, int numParticles);
+void freeParticles(Particles* particles);
+
+#endif // PARTICLE_H
