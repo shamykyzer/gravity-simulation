@@ -18,9 +18,9 @@ void handleBoundaryCollisions(Particles* particles, int numParticles, float minX
 void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength);
 void applyOrbit(Particles* particles, int numParticles, float centerX, float centerY, float strength);
 void drawParticles(Particles* particles, int numParticles);
-//void applyBorderRepulsion(Particles *particles, int numParticles, float minX, float maxX, float minY, float maxY, float repulsionStrength, float thresholdDistance);
 void freeParticles(Particles *particles);
 void applyBounceBack(Particles *particles, int numParticles, float centerX, float centerY, float bounceStrength);
 void resetSimulation(Particles *particles, int numParticles);
-void applyGlobalRepulsion(Particles* particles, int numParticles, float repulsionStrength) ;
+void applyGlobalRepulsion(Particles* particles, int numParticles, float repulsionStrength);
+
 #endif
