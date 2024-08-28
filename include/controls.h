@@ -4,6 +4,10 @@
 #include <GLFW/glfw3.h>
 #include "particle.h"
 
+// Declare centerX and centerY as extern
+extern float centerX;
+extern float centerY;
+
 // Function to initialize controls
 void initControls(GLFWwindow* window);
 
