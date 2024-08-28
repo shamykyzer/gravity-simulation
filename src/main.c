@@ -83,9 +83,9 @@ int main() {
         for (int i = 0; i < MAX_PARTICLES; ++i) {
             particleData[i * 5 + 0] = particles.x[i];
             particleData[i * 5 + 1] = particles.y[i];
-            particleData[i * 5 + 2] = particles.r[i];
-            particleData[i * 5 + 3] = particles.g[i];
-            particleData[i * 5 + 4] = particles.b[i];
+            particleData[i * 5 + 2] = 1.0f;  // Set red component to 1.0 (white)
+            particleData[i * 5 + 3] = 1.0f;  // Set green component to 1.0 (white)
+            particleData[i * 5 + 4] = 1.0f;  // Set blue component to 1.0 (white)
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);

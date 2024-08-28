@@ -2,6 +2,8 @@
 #include "constants.h"
 #include "particle.h"
 #include <GLFW/glfw3.h>
+#include <math.h>
+#include <stdlib.h>
 
 static int attract = 0;
 static int repel = 0;
@@ -56,4 +58,30 @@ void handleInput(GLFWwindow* window, Particles* particles, int numParticles) {
 void initControls(GLFWwindow* window) {
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetCursorPosCallback(window, cursor_position_callback);
+}
+
+void resetSimulation(Particles* particles, int numParticles) {
+    // Re-initialize particles
+    initParticles(particles, numParticles);
+}
+
+void applyAttraction(Particles* particles, int numParticles, float mouseX, float mouseY, float strength) {
+    for (int i = 0; i < numParticles; ++i) {
+        float dx = mouseX - particles->x[i];
+        float dy = mouseY - particles->y[i];
+        float distSq = dx * dx + dy * dy + 1e-4f;
+        float dist = sqrtf(distSq);
+        float force = strength / distSq;
+
+        particles->vx[i] += force * dx / dist;
+        particles->vy[i] += force * dy / dist;
+    }
+}
+
+void applyGlobalRepulsion(Particles* particles, int numParticles, float strength) {
+    for (int i = 0; i < numParticles; ++i) {
+        float angle = ((float)rand() / RAND_MAX) * 2 * M_PI;
+        particles->vx[i] += strength * cosf(angle);
+        particles->vy[i] += strength * sinf(angle);
+    }
 }

@@ -2,7 +2,8 @@
 #define PARTICLE_H
 
 typedef struct {
-    float *x, *y;       // Positions
+    float *x, *y;       // Current positions
+    float *prev_x, *prev_y; // Previous positions
     float *vx, *vy;     // Velocities
     float *ax, *ay;     // Accelerations
     float *mass;        // Masses
@@ -18,9 +19,9 @@ void handleBoundaryCollisions(Particles* particles, int numParticles, float minX
 void applyAttraction(Particles* particles, int numParticles, float centerX, float centerY, float strength);
 void applyOrbit(Particles* particles, int numParticles, float centerX, float centerY, float strength);
 void drawParticles(Particles* particles, int numParticles);
-void freeParticles(Particles *particles);
+void freeParticles(Particles* particles);
 void applyBounceBack(Particles *particles, int numParticles, float centerX, float centerY, float bounceStrength);
 void resetSimulation(Particles *particles, int numParticles);
-void applyGlobalRepulsion(Particles* particles, int numParticles, float repulsionStrength);
+void applyGlobalRepulsion(Particles* particles, int numParticles, float strength);
 
 #endif

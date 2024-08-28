@@ -10,6 +10,8 @@
 void initParticles(Particles* particles, int numParticles) {
     particles->x = (float*)malloc(numParticles * sizeof(float));
     particles->y = (float*)malloc(numParticles * sizeof(float));
+    particles->prev_x = (float*)malloc(numParticles * sizeof(float));
+    particles->prev_y = (float*)malloc(numParticles * sizeof(float));
     particles->vx = (float*)malloc(numParticles * sizeof(float));
     particles->vy = (float*)malloc(numParticles * sizeof(float));
     particles->ax = (float*)malloc(numParticles * sizeof(float));
@@ -22,19 +24,20 @@ void initParticles(Particles* particles, int numParticles) {
     particles->momentum_y = (float*)malloc(numParticles * sizeof(float));
 
     for (int i = 0; i < numParticles; ++i) {
-        float angle = ((float)i / numParticles) * 2.0f * M_PI;
-        float radius = 0.5f + 0.1f * ((float)rand() / RAND_MAX);
-
-        particles->x[i] = radius * cos(angle);
-        particles->y[i] = radius * sin(angle);
-        particles->vx[i] = -sin(angle) * 0.01f;
-        particles->vy[i] = cos(angle) * 0.01f;
+        particles->x[i] = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+        particles->y[i] = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
+        particles->prev_x[i] = particles->x[i];
+        particles->prev_y[i] = particles->y[i];
+        particles->vx[i] = 0.0f;
+        particles->vy[i] = 0.0f;
         particles->ax[i] = 0.0f;
         particles->ay[i] = 0.0f;
         particles->mass[i] = 1.0f;
-        particles->r[i] = 0.0f;
-        particles->g[i] = 1.0f;
-        particles->b[i] = 1.0f;
+        particles->r[i] = 1.0f;  // Set red component to 1.0 (white)
+        particles->g[i] = 1.0f;  // Set green component to 1.0 (white)
+        particles->b[i] = 1.0f;  // Set blue component to 1.0 (white)
+        particles->momentum_x[i] = 0.0f;
+        particles->momentum_y[i] = 0.0f;
     }
 }
 
@@ -86,4 +89,21 @@ void drawParticles(Particles* particles, int numParticles) {
         glVertex2f(particles->x[i], particles->y[i]);
     }
     glEnd();
+}
+
+void freeParticles(Particles* particles) {
+    free(particles->x);
+    free(particles->y);
+    free(particles->prev_x);
+    free(particles->prev_y);
+    free(particles->vx);
+    free(particles->vy);
+    free(particles->ax);
+    free(particles->ay);
+    free(particles->mass);
+    free(particles->r);
+    free(particles->g);
+    free(particles->b);
+    free(particles->momentum_x);
+    free(particles->momentum_y);
 }
