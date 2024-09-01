@@ -16,15 +16,15 @@ void updateParticlesAndForces(Particles* particles, int numParticles, float dt) 
     handleBoundaryCollisions(particles, numParticles, -1.0f, 1.0f, -1.0f, 1.0f);
 }
 
-int main() {
-    srand(time(NULL));
+int main(int argc, char* argv[]) {
+    srand(time(NULL));  // Ensure different seed for each process
 
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
         return -1;
     }
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Particle Simulation", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1280, 960, "Particle Simulation", NULL, NULL);
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
         glfwTerminate();
@@ -60,5 +60,6 @@ int main() {
     freeParticles(&particles);  // Free the allocated memory
     glfwDestroyWindow(window);
     glfwTerminate();
+
     return 0;
 }

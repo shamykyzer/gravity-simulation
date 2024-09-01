@@ -1,8 +1,11 @@
-const char* fragmentSource = "#version 330 core\n"
-                             "in vec3 color;\n"
-                             "out vec4 FragColor;\n"
-                             "void main()\n"
-                             "{\n"
-                             "    float intensity = length(gl_FragCoord.xy / vec2(800, 600));\n"
-                             "    FragColor = vec4(color * intensity, 1.0);\n"
-                             "}";
+#version 430 core
+
+in vec3 v_vel;
+
+out vec4 o_fragColor;
+
+void main()
+{
+    vec3 v_color = vec3(min(v_vel.y, 0.8f), max(v_vel.x, 0.5f), min(v_vel.z, 0.5f));
+    o_fragColor = vec4(v_color, 1.0f);
+}

@@ -4,13 +4,21 @@
 #include <GLFW/glfw3.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>  // Include for debugging
 
 // Define centerX and centerY here
 float centerX = 0.0f, centerY = 0.0f;
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
-    centerX = (float)xpos / 400.0f - 1.0f;
-    centerY = 1.0f - (float)ypos / 300.0f;
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+    centerX = (float)xpos / (width / 2.0f) - 1.0f;
+    centerY = 1.0f - (float)ypos / (height / 2.0f);
+    printf("Cursor Position: (%f, %f)\n", centerX, centerY);  // Debugging information
 }
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
@@ -19,8 +27,11 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
             // Update center of gravity to cursor position
             double xpos, ypos;
             glfwGetCursorPos(window, &xpos, &ypos);
-            centerX = (float)xpos / 400.0f - 1.0f;
-            centerY = 1.0f - (float)ypos / 300.0f;
+            int width, height;
+            glfwGetWindowSize(window, &width, &height);
+            centerX = (float)xpos / (width / 2.0f) - 1.0f;
+            centerY = 1.0f - (float)ypos / (height / 2.0f);
+            printf("Mouse Click Position: (%f, %f)\n", centerX, centerY);  // Debugging information
         }
     }
 }

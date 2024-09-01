@@ -8,22 +8,24 @@
 
 // Initialize particles with slight perturbations
 void initParticles(Particles* particles, int numParticles) {
-    particles->x = (float*)malloc(numParticles * sizeof(float));
-    particles->y = (float*)malloc(numParticles * sizeof(float));
-    particles->prev_x = (float*)malloc(numParticles * sizeof(float));
-    particles->prev_y = (float*)malloc(numParticles * sizeof(float));
-    particles->vx = (float*)malloc(numParticles * sizeof(float));
-    particles->vy = (float*)malloc(numParticles * sizeof(float));
-    particles->ax = (float*)malloc(numParticles * sizeof(float));
-    particles->ay = (float*)malloc(numParticles * sizeof(float));
-    particles->mass = (float*)malloc(numParticles * sizeof(float));
-    particles->r = (float*)malloc(numParticles * sizeof(float));
-    particles->g = (float*)malloc(numParticles * sizeof(float));
-    particles->b = (float*)malloc(numParticles * sizeof(float));
-    particles->momentum_x = (float*)malloc(numParticles * sizeof(float));
-    particles->momentum_y = (float*)malloc(numParticles * sizeof(float));
+    int particlesPerProcess = numParticles;
 
-    for (int i = 0; i < numParticles; ++i) {
+    particles->x = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->y = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->prev_x = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->prev_y = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->vx = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->vy = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->ax = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->ay = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->mass = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->r = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->g = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->b = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->momentum_x = (float*)malloc(particlesPerProcess * sizeof(float));
+    particles->momentum_y = (float*)malloc(particlesPerProcess * sizeof(float));
+
+    for (int i = 0; i < particlesPerProcess; ++i) {
         particles->x[i] = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
         particles->y[i] = ((float)rand() / RAND_MAX) * 2.0f - 1.0f;
         particles->prev_x[i] = particles->x[i];
@@ -41,21 +43,23 @@ void initParticles(Particles* particles, int numParticles) {
     }
 }
 
-// Compute forces for central orbit
+// Compute forces for central orbit using Barnes-Hut Algorithm
 void computeForces(Particles* particles, int numParticles, float G) {
-    float centerX = 0.0f;
-    float centerY = 0.0f;
+    QuadNode* root = createNode(-1.0f, -1.0f, 1.0f, 1.0f);
 
     for (int i = 0; i < numParticles; ++i) {
-        float dx = centerX - particles->x[i];
-        float dy = centerY - particles->y[i];
-        float distSq = dx * dx + dy * dy + 1e-4f;
-        float dist = sqrtf(distSq);
-        float force = G / distSq;
-
-        particles->ax[i] = force * dx / dist;
-        particles->ay[i] = force * dy / dist;
+        Particle p = {particles->x[i], particles->y[i], particles->vx[i], particles->vy[i], particles->ax[i], particles->ay[i], particles->mass[i]};
+        insertParticle(root, &p);
     }
+
+    for (int i = 0; i < numParticles; ++i) {
+        Particle p = {particles->x[i], particles->y[i], particles->vx[i], particles->vy[i], particles->ax[i], particles->ay[i], particles->mass[i]};
+        computeForce(root, &p, 0.5f, G);
+        particles->ax[i] = p.ax;
+        particles->ay[i] = p.ay;
+    }
+
+    freeQuadtree(root);
 }
 
 void updateParticles(Particles* particles, int numParticles, float dt) {

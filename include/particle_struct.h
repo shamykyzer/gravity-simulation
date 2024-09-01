@@ -2,12 +2,10 @@
 #define PARTICLE_STRUCT_H
 
 typedef struct {
-    float x, y;
-    float vx, vy;
-    float ax, ay;
-    float mass;
-    float r, g, b;
-    float momentum_x, momentum_y;
+    float x, y;       // Current positions
+    float vx, vy;     // Velocities
+    float ax, ay;     // Accelerations
+    float mass;       // Mass
 } Particle;
 
 #endif

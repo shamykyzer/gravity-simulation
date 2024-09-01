@@ -58,6 +58,7 @@ void insertParticle(QuadNode* node, Particle* p) {
         if (node->nw == NULL) {
             subdivideNode(node);
         }
+
         QuadNode* quadrant = getQuadrant(node, p);
         insertParticle(quadrant, p);
 
