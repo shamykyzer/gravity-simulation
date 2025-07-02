@@ -8,3 +8,4 @@ obj/
 # Object files
 *.o
 src/*.o
+gravity-simulation/

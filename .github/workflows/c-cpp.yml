@@ -7,17 +7,35 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  installing-dependencies:
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v4
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y build-essential libgl1-mesa-dev libglew-dev libglfw3-dev libopenmpi-dev
-    - name: Build
-      run: make
-    - name: Test
-      run: make test
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libgl1-mesa-dev libglew-dev libglfw3-dev libopenmpi-dev
+
+  build:
+    runs-on: ubuntu-latest
+    needs: installing-dependencies
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: make
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test
+        run: make test
+
+  make:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make
+        run: make
