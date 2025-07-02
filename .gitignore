@@ -1,0 +1,4 @@
+gravity_simulation
+bin/
+obj/
+src/*.o
