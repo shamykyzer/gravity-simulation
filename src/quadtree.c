@@ -70,7 +70,8 @@ void insertParticle(QuadNode* node, Particle* p) {
 }
 
 void computeForce(QuadNode* node, Particle* p, float theta, float G) {
-    if (node == NULL || node->particle == p) return;
+    if (node == NULL) return;
+    if (node->particle != NULL && node->particle == p) return;
 
     float dx = node->centerX - p->x;
     float dy = node->centerY - p->y;
