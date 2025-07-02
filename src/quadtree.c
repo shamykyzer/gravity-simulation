@@ -80,8 +80,10 @@ void computeForce(QuadNode* node, Particle* p, float theta, float G) {
         float force = G * node->mass * p->mass / (dist * dist + 0.01f); // Add small value to prevent division by zero
         force = fminf(force, 1e6f); // Cap the force to prevent it from becoming too large
 
-        p->vx += force * dx / dist;
-        p->vy += force * dy / dist;
+        /* apply gravitational acceleration rather than directly modifying
+         * velocity so that the integrator can update velocity consistently */
+        p->ax += force * dx / dist;
+        p->ay += force * dy / dist;
     } else {
         computeForce(node->nw, p, theta, G);
         computeForce(node->ne, p, theta, G);
