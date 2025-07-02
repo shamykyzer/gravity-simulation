@@ -47,17 +47,26 @@ void initParticles(Particles* particles, int numParticles) {
 void computeForces(Particles* particles, int numParticles, float G) {
     QuadNode* root = createNode(-1.0f, -1.0f, 1.0f, 1.0f);
 
+    Particle* tempParticles = (Particle*)malloc(numParticles * sizeof(Particle));
+
     for (int i = 0; i < numParticles; ++i) {
-        Particle p = {particles->x[i], particles->y[i], particles->vx[i], particles->vy[i], particles->ax[i], particles->ay[i], particles->mass[i]};
-        insertParticle(root, &p);
+        tempParticles[i].x = particles->x[i];
+        tempParticles[i].y = particles->y[i];
+        tempParticles[i].vx = particles->vx[i];
+        tempParticles[i].vy = particles->vy[i];
+        tempParticles[i].ax = particles->ax[i];
+        tempParticles[i].ay = particles->ay[i];
+        tempParticles[i].mass = particles->mass[i];
+        insertParticle(root, &tempParticles[i]);
     }
 
     for (int i = 0; i < numParticles; ++i) {
-        Particle p = {particles->x[i], particles->y[i], particles->vx[i], particles->vy[i], particles->ax[i], particles->ay[i], particles->mass[i]};
-        computeForce(root, &p, 0.5f, G);
-        particles->ax[i] = p.ax;
-        particles->ay[i] = p.ay;
+        computeForce(root, &tempParticles[i], 0.5f, G);
+        particles->ax[i] = tempParticles[i].ax;
+        particles->ay[i] = tempParticles[i].ay;
     }
+
+    free(tempParticles);
 
     freeQuadtree(root);
 }
