@@ -8,6 +8,7 @@
 
 // Define centerX and centerY here
 float centerX = 0.0f, centerY = 0.0f;
+float attractionStrength = ATTRACTION_STRENGTH;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -36,6 +37,16 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     }
 }
 
+void handleScroll(GLFWwindow* window, double xoffset, double yoffset) {
+    (void)window; // unused
+    (void)xoffset;
+    attractionStrength += (float)yoffset * 0.01f;
+    if (attractionStrength < 0.0f) {
+        attractionStrength = 0.0f;
+    }
+    printf("Attraction Strength: %f\n", attractionStrength);
+}
+
 void handleInput(GLFWwindow* window, Particles* particles, int numParticles) {
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
         resetSimulation(particles, numParticles);  // Ensure this function is defined
@@ -45,6 +56,7 @@ void handleInput(GLFWwindow* window, Particles* particles, int numParticles) {
 void initControls(GLFWwindow* window) {
     glfwSetCursorPosCallback(window, cursor_position_callback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback); // Set mouse button callback
+    glfwSetScrollCallback(window, handleScroll);
 }
 
 // Ensure the function signature matches the declaration
