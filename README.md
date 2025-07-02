@@ -74,6 +74,12 @@ To set up and compile the project on your local machine, follow these steps:
    ./gravity_simulation
    ```
 
+5. **Run the unit tests**:
+
+   ```bash
+   make test
+   ```
+
 ## Usage
 
 To run the simulation:

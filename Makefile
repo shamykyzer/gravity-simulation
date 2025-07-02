@@ -23,3 +23,9 @@ src/controls.o: src/controls.c include/controls.h include/particle.h
 
 clean:
 	rm -f src/*.o gravity_simulation
+
+tests/test_quadtree: tests/test_quadtree.c src/quadtree.c include/quadtree.h include/particle_struct.h
+	$(CC) $(CFLAGS) -o $@ tests/test_quadtree.c src/quadtree.c -lm
+
+test: tests/test_quadtree
+	./tests/test_quadtree
