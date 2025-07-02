@@ -36,3 +36,8 @@ test: $(TEST_BIN)
 
 clean:
 	rm -f src/*.o $(OBJ) gravity_simulation $(TEST_BIN) tests/*.o
+
+.PHONY: deps
+deps:
+	sudo apt-get update && \
+	sudo apt-get install -y build-essential libgl1-mesa-dev libglew-dev libglfw3-dev libopenmpi-dev
