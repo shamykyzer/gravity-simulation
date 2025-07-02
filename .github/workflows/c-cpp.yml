@@ -58,7 +58,6 @@ jobs:
           restore-keys: ${{ runner.os }}-build-
       - name: Test
         run: make test
-
   make:
     name: Make
     runs-on: ubuntu-latest

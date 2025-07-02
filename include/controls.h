@@ -8,6 +8,9 @@
 extern float centerX;
 extern float centerY;
 
+// Current attraction strength (modifiable via scroll input)
+extern float attractionStrength;
+
 // Function to initialize controls
 void initControls(GLFWwindow* window);
 
