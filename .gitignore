@@ -8,3 +8,5 @@ obj/
 # Object files
 *.o
 src/*.o
+gravity-simulation/
+tests/test_quadtree
