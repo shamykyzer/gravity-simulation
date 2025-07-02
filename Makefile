@@ -21,5 +21,18 @@ src/shader_utils.o: src/shader_utils.c include/shader_utils.h
 src/controls.o: src/controls.c include/controls.h include/particle.h
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+TEST_OBJ = tests/test_quadtree.o src/quadtree.o
+TEST_BIN = tests/test_quadtree
+TEST_LDFLAGS = -lm
+
+$(TEST_BIN): $(TEST_OBJ)
+	$(CC) -o $@ $(TEST_OBJ) $(TEST_LDFLAGS)
+
+tests/test_quadtree.o: tests/test_quadtree.c include/quadtree.h include/particle_struct.h
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+test: $(TEST_BIN)
+	./$(TEST_BIN)
+
 clean:
-	rm -f src/*.o gravity_simulation
+	rm -f src/*.o $(OBJ) gravity_simulation $(TEST_BIN) tests/*.o
