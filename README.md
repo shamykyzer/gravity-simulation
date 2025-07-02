@@ -10,6 +10,7 @@ This project is a continuation of fluid simulation concepts, extended to simulat
 - [Installation](#installation)
 - [Build](#build)
 - [Usage](#usage)
+- [Continuous Integration](#continuous-integration)
 - [Project Layout](#project-layout)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
@@ -73,6 +74,13 @@ To set up and compile the project on your local machine, follow these steps:
    ```bash
    ./gravity_simulation
    ```
+
+## Continuous Integration
+
+This project uses a GitHub Actions workflow with four sequential jobs:
+**Installing Dependencies**, **Build**, **Test**, and **Make**. Each job
+installs the required packages with `apt-get`, and compiled object files are
+cached between jobs to speed up subsequent runs.
 
 ## Usage
 
