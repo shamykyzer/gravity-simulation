@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
         float dt = 0.016f;  // Simulate a fixed timestep (approx. 60 FPS)
 
         handleInput(window, &particles, MAX_PARTICLES);  // Handle input
-        applyAttraction(&particles, MAX_PARTICLES, centerX, centerY, ATTRACTION_STRENGTH); // Apply attraction
+        applyAttraction(&particles, MAX_PARTICLES, centerX, centerY, attractionStrength); // Apply attraction
         updateParticlesAndForces(&particles, MAX_PARTICLES, dt);
 
         drawParticles(&particles, MAX_PARTICLES);  // Draw particles
