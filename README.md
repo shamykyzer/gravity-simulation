@@ -38,11 +38,19 @@ To build and run the simulation, ensure you have the necessary dependencies inst
 - GLEW
 - GLFW
 
+- OpenMPI
+
 On Ubuntu, you can install these with:
 
 ```bash
 sudo apt-get update
-sudo apt-get install build-essential libgl1-mesa-dev libglew-dev libglfw3-dev
+sudo apt-get install build-essential libgl1-mesa-dev libglew-dev libglfw3-dev libopenmpi-dev
+```
+
+Alternatively, you can install all dependencies via Make:
+
+```bash
+make deps
 ```
 
 ## Build
