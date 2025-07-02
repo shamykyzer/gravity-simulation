@@ -1,0 +1,10 @@
+# Compiled binaries
+gravity_simulation
+bin/
+
+# Object files
+*.o
+obj/
+
+# Build outputs in src/
+src/*.o
