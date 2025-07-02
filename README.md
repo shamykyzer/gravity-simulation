@@ -125,7 +125,7 @@ The repository is organized as follows:
 4. **Interaction** – Mouse movement adjusts an attractor position; pressing `R` resets the system.
 
 ### Points for Further Exploration
-- Add a `LICENSE` file to clarify project usage.
+ - Review the [LICENSE](LICENSE) file to understand usage terms.
 - Inspect `quadtree.c` and `shader_utils.c` to understand the Barnes–Hut algorithm and shader compilation.
 - Experiment with additional forces or improved rendering techniques.
 
