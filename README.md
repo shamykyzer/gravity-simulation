@@ -77,11 +77,11 @@ To set up and compile the project on your local machine, follow these steps:
 
 ## Continuous Integration
 
-This project uses a GitHub Actions workflow that runs inside a prebuilt Docker
-container containing all required OpenGL dependencies. The workflow consists of
-four sequential jobs: **Installing Dependencies**, **Build**, **Test**, and
-**Make**. Compiled object files are cached between jobs to speed up subsequent
-steps.
+This project uses a GitHub Actions workflow with four sequential jobs:
+**Installing Dependencies**, **Build**, **Test**, and **Make**. Each job
+installs the required packages with `apt-get`, and compiled object files are
+cached between jobs to speed up subsequent runs. The build steps run
+`make clean` before `make` to ensure a fresh compilation each time.
 
 ## Usage
 
