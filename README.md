@@ -10,7 +10,7 @@ This project is a continuation of fluid simulation concepts, extended to simulat
 - [Installation](#installation)
 - [Build](#build)
 - [Usage](#usage)
-- [Code Structure](#code-structure)
+- [Project Layout](#project-layout)
 - [Acknowledgments](#acknowledgments)
 - [License](#license)
 
@@ -95,12 +95,39 @@ To run the simulation:
 
 Watch as the particles dynamically interact, forming clusters and complex orbital paths due to gravitational attraction. The simulation demonstrates both local interactions and larger structures emerging over time.
 
-## Code Structure
+## Project Layout
 
-- **\`include/particle.h\`**: Defines the \`Particle\` structure, which includes position, velocity, mass, and color components, along with function declarations for initializing and updating particles.
-- **\`src/particle.c\`**: Implements particle initialization and gravitational force calculations.
-- **\`src/main.c\`**: Sets up the OpenGL context and runs the simulation loop.
-- **\`Makefile\`**: Used to compile the project and manage dependencies.
+The repository is organized as follows:
+
+```
+.
+├── Makefile
+├── README.md
+├── gravity_simulation       (prebuilt binary)
+├── include/                 (header files)
+├── src/                     (C source files)
+├── shaders/                 (GLSL shader programs)
+├── bin/                     (older binary build)
+└── obj/                     (object files)
+```
+
+### Core Code Layout
+
+- **Headers (`include/`)** – `particle.h` defines the main `Particles` structure and associated routines. `quadtree.h` implements the Barnes–Hut node and helpers. Additional headers provide constants, input handling and shader utilities.
+- **Sources (`src/`)** – `main.c` initializes GLFW and GLEW, then enters the main loop. `particle.c` contains particle initialization, force computation and drawing. `controls.c` processes user input. Modules such as `quadtree.c`, `shader_utils.c` and `integral_image.c` implement supporting algorithms.
+- **Shaders (`shaders/`)** – GLSL programs for particle rendering and update logic.
+- **Makefile** – Builds the project into the `gravity_simulation` executable.
+
+### How the Simulation Works
+1. **Particle Storage** – Particles are stored in a structure-of-arrays layout for efficient updates.
+2. **Force Calculation** – A Barnes–Hut quadtree approximates gravitational forces when many particles are present.
+3. **Rendering** – Particles are drawn as points via OpenGL.
+4. **Interaction** – Mouse movement adjusts an attractor position; pressing `R` resets the system.
+
+### Points for Further Exploration
+- Add a `LICENSE` file to clarify project usage.
+- Inspect `quadtree.c` and `shader_utils.c` to understand the Barnes–Hut algorithm and shader compilation.
+- Experiment with additional forces or improved rendering techniques.
 
 ## Acknowledgments
 
@@ -109,5 +136,4 @@ This project was inspired by [Brendan Galea's YouTube video](https://www.youtube
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-"""
 
