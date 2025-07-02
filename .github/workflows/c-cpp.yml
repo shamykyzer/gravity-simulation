@@ -69,7 +69,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential libgl1-mesa-dev libglew-dev libglfw3-dev libopenmpi-dev
+        sudo apt-get install -y build-essential libgl1-mesa-dev libglew-dev libglfw3-dev 
     - name: Build
       run: make
     - name: Test
