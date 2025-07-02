@@ -1,4 +1,10 @@
+# Compiled binary
 gravity_simulation
+
+# Build directories
 bin/
 obj/
+
+# Object files
+*.o
 src/*.o
