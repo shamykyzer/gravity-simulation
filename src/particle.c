@@ -35,9 +35,9 @@ void initParticles(Particles* particles, int numParticles) {
         particles->ax[i] = 0.0f;
         particles->ay[i] = 0.0f;
         particles->mass[i] = 1.0f;
-        particles->r[i] = 1.0f;  // Set red component to 0.0 (cyan)
-        particles->g[i] = 1.0f;  // Set green component to 1.0 (cyan)
-        particles->b[i] = 1.0f;  // Set blue component to 1.0 (cyan)
+        particles->r[i] = 1.0f;  // Red component set to 1.0 (white)
+        particles->g[i] = 1.0f;  // Green component set to 1.0 (white)
+        particles->b[i] = 1.0f;  // Blue component set to 1.0 (white)
         particles->momentum_x[i] = 0.0f;
         particles->momentum_y[i] = 0.0f;
     }
